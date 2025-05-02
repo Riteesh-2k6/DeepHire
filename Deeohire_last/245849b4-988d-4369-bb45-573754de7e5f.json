@@ -1,0 +1,45 @@
+{
+  "session_id": "245849b4-988d-4369-bb45-573754de7e5f",
+  "questions": [
+    {
+      "id": 1,
+      "question": "You're tasked with building a machine learning-powered feature for Google Search that suggests personalized search filters based on a user's search history and preferences. How would you design the frontend and backend architecture to integrate with Google's existing search infrastructure, and ensure the feature is scalable, secure, and compliant with Google's privacy policies?"
+    },
+    {
+      "id": 2,
+      "question": "Suppose you're building a real-time collaborative document editing feature for Google Docs, using Google's Cloud Firestore as the backend database. How would you design the data model and API to handle concurrent updates, ensure data consistency, and optimize performance? Assume a high volume of concurrent users and a large document size."
+    },
+    {
+      "id": 3,
+      "question": "Google's Maps API uses a combination of client-side and server-side geocoding to provide accurate location-based services. How would you implement a feature to auto-complete partial addresses using the Google Maps API, while handling cases where the user's input is ambiguous or incomplete, and ensuring a responsive user experience?"
+    },
+    {
+      "id": 4,
+      "question": "Suppose you're building a new feature for Google Maps that allows users to share their favorite places with friends. How would you design the backend API to handle the sharing functionality, considering scalability and security?"
+    },
+    {
+      "id": 5,
+      "question": "Suppose you're building a web application using Google Cloud App Engine that allows users to upload and share images. How would you optimize the image upload process to ensure efficient storage and retrieval, considering Google Cloud Storage's billing model?"
+    },
+    {
+      "id": 6,
+      "question": "How would you optimize the frontend performance of a Google Search results page, considering the page's complex layout and dynamic content?"
+    },
+    {
+      "id": 7,
+      "question": "Google AdWords is planning to introduce a new feature that allows advertisers to target users based on their search history. The feature requires a full-stack implementation to handle user search queries, store search history, and serve targeted ads. Design a full-stack solution using Google's technology stack, considering scalability, performance, and security."
+    },
+    {
+      "id": 8,
+      "question": "Google Drive is planning to introduce a new feature that allows users to collaborate on documents in real-time. The feature requires a full-stack implementation to handle collaborative editing, conflict resolution, and document storage. Design a full-stack solution using Google's technology stack, considering scalability, performance, and security."
+    },
+    {
+      "id": 9,
+      "question": "Suppose you're building a new feature for Google Drive that allows users to collaborate on documents in real-time. How would you design the real-time collaboration system, considering latency and data consistency?"
+    },
+    {
+      "id": 10,
+      "question": "Google's advertising business relies heavily on accurate tracking and measurement of ad clicks and conversions. How would you design a backend API using Google Cloud Platform (GCP) services to track and store ad conversion data, and what considerations would you take into account to ensure data accuracy and scalability?"
+    }
+  ]
+}

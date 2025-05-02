@@ -1,0 +1,52 @@
+{
+  "session_id": "f62cfa33-5560-48f5-8496-f188506e9c02",
+  "company": "Google",
+  "domain": "System Design",
+  "difficulty": "Medium",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Design a system to handle Google Drive's file upload and processing for large files (>1 GB). Assume you have access to a scalable storage system and a distributed computing framework. How would you optimize this system for high-throughput and fault tolerance?"
+    },
+    {
+      "id": 2,
+      "question": null
+    },
+    {
+      "id": 3,
+      "question": "Design a system to handle Google Ads' real-time bidding and auction processing, considering the massive volume of ad requests, user behavior, and advertiser bids."
+    },
+    {
+      "id": 4,
+      "question": "Design a scalable and fault-tolerant system to handle Google Maps' traffic updates in real-time, considering the massive scale of users and traffic data. How would you ensure that the system can handle sudden spikes in traffic during rush hour or unexpected events like natural disasters?"
+    },
+    {
+      "id": 5,
+      "question": "Design a content delivery network (CDN) for YouTube that can handle high-bandwidth video content and ensure low latency for users worldwide. How would you optimize the CDN for different types of video content, such as live streams, 4K videos, and VR content?"
+    },
+    {
+      "id": 6,
+      "question": "Design a caching system for Google Maps that can handle high traffic and minimize latency for users in different geographic regions. Assume you have access to Google's global network of data centers and caching infrastructure."
+    },
+    {
+      "id": 7,
+      "question": "Design a system to handle Google Maps' real-time traffic updates for a large city like New York. Assume you have access to real-time traffic sensor data and historical traffic patterns. How would you architect this system to ensure low latency and high availability?"
+    },
+    {
+      "id": 8,
+      "question": "Design a system to handle Google Ads' real-time bidding and auction processing, ensuring low latency, high throughput, and fairness in the auction process. Assume you have a large volume of bidder requests and limited computational resources."
+    },
+    {
+      "id": 9,
+      "question": "Design a system to handle Google Maps' traffic updates, which involve processing and analyzing large volumes of real-time traffic data from various sources, including GPS sensors, traffic cameras, and user reports."
+    },
+    {
+      "id": 10,
+      "question": "Design a system to handle real-time analytics and reporting for Google Ads, ensuring low latency, high throughput, and accurate data aggregation."
+    },
+    {
+      "id": 11,
+      "question": "Design a system to handle Google Drive's file upload and processing pipeline, ensuring high availability, scalability, and data consistency across multiple regions. Assume you have a large volume of files being uploaded simultaneously, and each file requires virus scanning, metadata extraction, and indexing."
+    }
+  ]
+}

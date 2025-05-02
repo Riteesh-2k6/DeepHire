@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepHire Blog - AI Mock Interview Insights</title>
+    <style>
+        :root {
+            --primary: #000000;
+            --secondary: #FFFFFF;
+            --accent: #26619c;
+            --dark: #111111;
+            --light: #f9f9f9;
+            --gray: #444444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary);
+            color: var(--secondary);
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: var(--primary);
+            color: var(--secondary);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--secondary);
+        }
+
+        .blog-container {
+            padding: 100px 0;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 2rem 0;
+            overflow:auto;
+            grid-auto-flow: row;
+            cursor: pointer
+        }
+
+        .blog-card {
+            background: var(--dark);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            color: var(--secondary);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .blog-content {
+            padding: 20px;
+        }
+
+        .blog-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .blog-meta {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .blog-excerpt {
+            color: #aaaaaa;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .read-more {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .read-more:hover {
+            color: var(--secondary);
+        }
+
+        .blog-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .blog-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .blog-header p {
+            color: var(--gray);
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="blog-container">
+            <div class="container">
+                <div class="blog-header">
+                    <h1>Latest Insights</h1>
+                    <p>Explore our collection of articles on AI interview preparation and career development</p>
+                </div>
+
+                <div class="blog-grid">
+                    <div class="blog-card">
+                        <img src="https://img.freepik.com/free-photo/futuristic-technology-concept_23-2151908095.jpg?t=st=1745470432~exp=1745474032~hmac=5a3ee477148309c16d7a59b282caf748766e08ac2e229dd9de96c9ecd37c7a8d&w=996" alt="Blog Post 1" class="blog-image">
+                        <div class="blog-content">
+                            <h2 class="blog-title">Mastering AI Interview Questions</h2>
+                            <div class="blog-meta">April 23, 2025 • 5 min read</div>
+                            <p class="blog-excerpt">Introduction: The Rise of AI in Hiring
+                                Artificial intelligence is revolutionizing the hiring process across industries. From initial candidate screening to final interviews...</p>
+                            <a href="{{url_for('blog1')}}" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+
+                    <div class="blog-card">
+                        <img src="https://res.cloudinary.com/dlxddikck/image/upload/v1745471920/Screenshot_3_xluqte.png" alt="Blog Post 2" class="blog-image">
+                        <div class="blog-content">
+                            <h2 class="blog-title">The Future of AI in Interviews</h2>
+                            <div class="blog-meta">April 20, 2025 • 7 min read</div>
+                            <p class="blog-excerpt">Introduction: The Strategic Nature of Career Growth
+                                Career advancement is not merely the result of time and effort but rather a deliberate strategy that...</p>
+                            <a href="{{url_for('blog2')}}" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+
+                    <div class="blog-card">
+                        <img src="https://img.freepik.com/free-vector/particle-face-tech-background_23-2148309417.jpg?t=st=1745471020~exp=1745474620~hmac=1a6b2a543199d142e40d5b3d727c3055fb5a322365aa26f0aefc541773a25da1&w=1060" alt="Blog Post 3" class="blog-image">
+                        <div class="blog-content">
+                            <h2 class="blog-title">Inside a Dev's Mind</h2>
+                            <div class="blog-meta">April 15, 2025 • 8 min read</div>
+                            <p class="blog-excerpt">A Day in the Life of a Developer
+                                Behind every app, website, or platform lies the creative and...</p>
+                            <a href="{{url_for('blog3')}}" class="read-more">Read More →</a>
+                        </div>
+                    </div>
+                    <div class="blog-card">
+                      <img src="https://img.freepik.com/free-photo/representation-user-experience-interface-design_23-2150169849.jpg?t=st=1745488532~exp=1745492132~hmac=28a61ac6e3dc4917a5860228f05d4069bef051bdc7b3f6ed3b16d2a2824d9301&w=996" alt="Blog Post 1" class="blog-image">
+                      <div class="blog-content">
+                          <h2 class="blog-title">Mastering Technical Interviews</h2>
+                          <div class="blog-meta">April 23, 2025 • 5 min read</div>
+                          <p class="blog-excerpt">Understanding the Interview Landscape
+                            Technical interviews can be intimidating, but knowing what to...</p>
+                          <a href="{{url_for('blog4')}}" class="read-more">Read More →</a>
+                      </div>
+                  </div>
+
+                  <div class="blog-card">
+                      <img src="https://img.freepik.com/free-photo/recruitment-consulting-venn-diagram_53876-121542.jpg?t=st=1745487261~exp=1745490861~hmac=bf751ab7775348217a707d0d6ada6d901364cc8220d3635a6b8d58ac1bcb03dc&w=740" alt="Blog Post 2" class="blog-image">
+                      <div class="blog-content">
+                          <h2 class="blog-title">Building a Winning Resume</h2>
+                          <div class="blog-meta">April 20, 2025 • 7 min read</div>
+                          <p class="blog-excerpt">The Role of AI in Modern Recruitment
+b                            AI is increasingly being used to streamline recruitment processes, from...</p>
+                          <a href="{{url_for('blog5')}}" class="read-more">Read More →</a>
+                      </div>
+                  </div>
+
+                  <div class="blog-card">
+                      <img src="https://res.cloudinary.com/dovfdgnzm/image/upload/v1745488277/Screenshot_1_jwwmli.png" alt="Blog Post 3" class="blog-image">
+                      <div class="blog-content">
+                          <h2 class="blog-title">The Role of Soft Skills in Tech</h2>
+                          <div class="blog-meta">April 15, 2025 • 8 min read</div>
+                          <p class="blog-excerpt">First Impressions Matter
+                            Your resume is your introduction to potential employers. It's....</p>
+                          <a href="{{url_for('blog6')}}" class="read-more">Read More →</a>
+                      </div>
+                  </div>
+
+                  <div class="blog-card">
+                    <img src="https://img.freepik.com/free-photo/diverse-young-people-being-digital-nomads-working-remotely-from-dreamy-locations_23-2151187935.jpg?t=st=1745487682~exp=1745491282~hmac=7f230a0c67f92ca2b57453ca1724aea262e85a51517101fffdcf117a517c9163&w=996" alt="Blog Post 3" class="blog-image">
+                    <div class="blog-content">
+                        <h2 class="blog-title">Remote Work as a Developer</h2>
+                        <div class="blog-meta">April 15, 2025 • 8 min read</div>
+                        <p class="blog-excerpt">The Rise of Remote Development
+                            Remote work has evolved from a temporary necessity to a lasting...</p>
+                        <a href="{{url_for('blog7')}}" class="read-more">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://res.cloudinary.com/dovfdgnzm/image/upload/v1745488375/Screenshot_3_t01psc.png" alt="Blog Post 3" class="blog-image">
+                    <div class="blog-content">
+                        <h2 class="blog-title">AI Ethics in Recruitment</h2>
+                        <div class="blog-meta">April 15, 2025 • 8 min read</div>
+                        <p class="blog-excerpt">The Role of AI in Modern Recruitment
+                            AI is increasingly being used to streamline recruitment processes, from resume...</p>
+                        <a href="{{url_for('blog8')}}" class="read-more">Read More →</a>
+                    </div>
+                </div>
+
+                <div class="blog-card">
+                    <img src="https://res.cloudinary.com/dovfdgnzm/image/upload/v1745488407/Screenshot_4_gvjn9n.png" alt="Blog Post 3" class="blog-image">
+                    <div class="blog-content">
+                        <h2 class="blog-title">Breaking into Tech Without a CS Degree</h2>
+                        <div class="blog-meta">April 15, 2025 • 8 min read</div>
+                        <p class="blog-excerpt">The Myth of the Computer Science Degree
+                            Many people believe that a computer science degree is the only path to a career...</p>
+                        <a href="{{url_for('blog9')}}" class="read-more">Read More →</a>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+        </div>
+       <div> <h1> More Blogs Coming Soon...</h1></div>
+    </main>
+</body>
+</html>

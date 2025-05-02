@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Interview Selection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: white;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: white;
+        }
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            margin-top: 40px;
+            color: white;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .option-card {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background-color: #2d2d2d;
+        }
+        .option-card:hover {
+            background-color: #3a3a3a;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .option-card.selected {
+            background-color: #3a3a3a;
+            border: 2px solid #4285f4;
+        }
+        .circle-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .circle-img img {
+            width: 70%;
+            height: auto;
+            object-fit: contain;
+        }
+        .option-title {
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .difficulty-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .difficulty-btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #2d2d2d;
+            color: white;
+            border: none;
+        }
+        .difficulty-btn:hover {
+            background-color: #3a3a3a;
+        }
+        .difficulty-btn.selected {
+            background-color: #4285f4;
+            color: white;
+        }
+        .submit-btn {
+            display: block;
+            margin: 40px auto;
+            padding: 12px 40px;
+            border-radius: 30px;
+            background-color: #4285f4;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #3a3a3a;
+            display: none;
+        }
+        .selection-summary {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #4285f4;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Technical Interview Preparation</h1>
+        
+        <div class="section-title">Company</div>
+        <div class="grid-container" id="companyGrid">
+            <div class="option-card" data-value="Google">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/59/7f/11/597f11b631d7d94492f1adb95110cc44.jpg" alt="Google Logo">
+                </div>
+                <div class="option-title">Google</div>
+            </div>
+            
+            <div class="option-card" data-value="Meta">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/21/01/b4/2101b483d2299babdf9c901636df67ba.jpg" alt="Meta Logo">
+                </div>
+                <div class="option-title">Meta</div>
+            </div>
+            
+            <div class="option-card" data-value="Apple">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/60/6b/c0/606bc0717982547e555a514b479365a0.jpg" alt="Apple Logo">
+                </div>
+                <div class="option-title">Apple</div>
+            </div>
+            
+            <div class="option-card" data-value="Netflix">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/72/a0/50/72a0500ff35991d147a6b48e4bffc721.jpg" alt="Netflix Logo">
+                </div>
+                <div class="option-title">Netflix</div>
+            </div>
+            
+            <div class="option-card" data-value="Amazon">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/5a/62/70/5a62706bc5603694b1bd08acc40d3096.jpg" alt="Amazon Logo">
+                </div>
+                <div class="option-title">Amazon</div>
+            </div>
+            
+            <div class="option-card" data-value="Infosys">
+                <div class="circle-img">
+                    <img src="https://res.cloudinary.com/dlxddikck/image/upload/v1743663166/infosys-logo-infosys-icon-free-free-vector_ij8ssm.jpg" alt="Infosys Logo">
+                </div>
+                <div class="option-title">Infosys</div>
+            </div>
+            
+            <div class="option-card" data-value="Capgemini">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/56/75/23/567523ef08b76719934714f88fd82dbe.jpg" alt="Capgemini Logo">
+                </div>
+                <div class="option-title">Capgemini</div>
+            </div>
+        </div>
+        
+        <div class="section-title">Domain</div>
+        <div class="grid-container" id="domainGrid">
+            <div class="option-card" data-value="Full Stack">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/fa/e8/62/fae862fff4f6100d000a1c01c4030db0.jpg" alt="Full Stack Icon">
+                </div>
+                <div class="option-title">Full Stack Developer</div>
+            </div>
+            
+            <div class="option-card" data-value="Front End">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/0d/42/c5/0d42c51c82fca7b2a1360ffec4747b2a.jpg" alt="Front End Icon">
+                </div>
+                <div class="option-title">Front End Developer</div>
+            </div>
+            
+            <div class="option-card" data-value="Back End">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/93/f9/55/93f9558141d88a304098ac5b3f1b3e95.jpg" alt="Back End Icon">
+                </div>
+                <div class="option-title">Back End Developer</div>
+            </div>
+            
+            <div class="option-card" data-value="Java">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/22/f1/66/22f166c79b88eff425400e15b943065c.jpg" alt="Java Icon">
+                </div>
+                <div class="option-title">Java Developer</div>
+            </div>
+            
+            <div class="option-card" data-value="Python">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/e5/1c/a4/e51ca4cbafa87bd9bb678d8224a2b9d6.jpg" alt="Python Icon">
+                </div>
+                <div class="option-title">Python Developer</div>
+            </div>
+            
+            <div class="option-card" data-value="AI/ML Dev">
+                <div class="circle-img">
+                    <img src=https://i.pinimg.com/736x/c7/7b/00/c77b00580deec85682a56c8f072e3d30.jpg" alt="AI/ML Icon">
+                </div>
+                <div class="option-title">AI/ML Developer</div>
+            </div>
+            
+            <div class="option-card" data-value="System Design">
+                <div class="circle-img">
+                    <img src="https://i.pinimg.com/736x/a3/52/6f/a3526ff1910207e8f19d70f2997b264a.jpg" alt="System Design Icon">
+                </div>
+                <div class="option-title">System Designer</div>
+            </div>
+        </div>
+        
+        <div class="section-title">Difficulty</div>
+        <div class="difficulty-container" id="difficultyContainer">
+            <button class="difficulty-btn" data-value="Easy">Easy</button>
+            <button class="difficulty-btn" data-value="Medium">Medium</button>
+            <button class="difficulty-btn" data-value="Hard">Hard</button>
+        </div>
+        
+        <button class="submit-btn" id="submitBtn">Find Interview Questions</button>
+        
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Preparing your interview questions...</p>
+        </div>
+        
+        <div id="result" class="result">
+            <div class="selection-summary">
+                <p>Your selection: <strong><span id="companyResult"></span></strong> | <strong><span id="domainResult"></span></strong> | <strong><span id="difficultyResult"></span></strong></p>
+                <p>Redirecting to chatbot interface...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle company selection
+        const companyCards = document.querySelectorAll('#companyGrid .option-card');
+        let selectedCompany = null;
+        
+        companyCards.forEach(card => {
+            card.addEventListener('click', function() {
+                companyCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedCompany = {
+                    value: this.getAttribute('data-value'),
+                    text: this.querySelector('.option-title').textContent
+                };
+            });
+        });
+        
+        // Handle domain selection
+        const domainCards = document.querySelectorAll('#domainGrid .option-card');
+        let selectedDomain = null;
+        
+        domainCards.forEach(card => {
+            card.addEventListener('click', function() {
+                domainCards.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedDomain = {
+                    value: this.getAttribute('data-value'),
+                    text: this.querySelector('.option-title').textContent
+                };
+            });
+        });
+        
+        // Handle difficulty selection
+        const difficultyBtns = document.querySelectorAll('#difficultyContainer .difficulty-btn');
+        let selectedDifficulty = null;
+        
+        difficultyBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                difficultyBtns.forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedDifficulty = {
+                    value: this.getAttribute('data-value'),
+                    text: this.textContent
+                };
+            });
+        });
+        
+        // Handle form submission to Flask
+        document.getElementById('submitBtn').addEventListener('click', async function() {
+            // Validate selections
+            if (!selectedCompany || !selectedDomain || !selectedDifficulty) {
+                alert('Please select one option from each category!');
+                return;
+            }
+            
+            // Show loading and hide submit button
+            document.getElementById('loading').style.display = 'block';
+            this.disabled = true;
+            
+            // Prepare data to send
+            const formData = {
+                company: selectedCompany.value,
+                domain: selectedDomain.value,
+                difficulty: selectedDifficulty.value
+            };
+            
+            try {
+                // Replace with your actual Flask endpoint
+                const response = await fetch('/submit-interview-preferences', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update result display
+                    document.getElementById('companyResult').textContent = selectedCompany.text;
+                    document.getElementById('domainResult').textContent = selectedDomain.text;
+                    document.getElementById('difficultyResult').textContent = selectedDifficulty.text;
+                    document.getElementById('result').style.display = 'block';
+                    
+                    // Wait briefly to show confirmation, then redirect
+                    setTimeout(() => {
+                        // Redirect to the chatbot page with the session ID returned from Flask
+                        window.location.href = `/chatbot?session=${data.session_id}`;
+                    }, 1500);
+                } else {
+        const errorText = await response.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`Server responded with error ${response.status}: ${errorText}`);
+    }
+} catch (error) {
+    console.error('Error submitting form:', error);
+    alert('There was an error processing your request. Please try again.');
+    
+    // Re-enable submit button and hide loading
+    document.getElementById('loading').style.display = 'none';
+    this.disabled = false;
+
+            }
+        });
+    </script>
+</body>
+</html>

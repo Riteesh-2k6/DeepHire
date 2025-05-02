@@ -1,0 +1,52 @@
+{
+  "session_id": "df65f6b0-71be-4f80-a58d-cdb2716dce66",
+  "company": "Amazon",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": "How would you implement accessibility features on an Amazon shopping cart page to ensure that users with disabilities can easily interact with the page?"
+    },
+    {
+      "id": 2,
+      "question": "Amazon's product detail pages often feature a large number of customer reviews, which can impact page load times. How would you optimize the loading of customer reviews on a product detail page using Amazon's proprietary JavaScript library, Aria, and considering the constraints of Amazon's 1-Click ordering feature?"
+    },
+    {
+      "id": 3,
+      "question": "Amazon's Prime Video service uses a complex recommendation engine to suggest content to users. Implement a performant and accessible way to render a scrolling list of recommended videos on a user's homepage, taking into account varying screen sizes, devices, and network conditions. Assume you have access to a REST API that provides the video metadata."
+    },
+    {
+      "id": 4,
+      "question": "How would you optimize the performance of an Amazon product details page, which is heavily reliant on JavaScript and has multiple third-party scripts, to ensure a seamless user experience?"
+    },
+    {
+      "id": 5,
+      "question": "How would you implement a responsive design for an Amazon product recommendation widget, which displays a grid of product images and titles, to ensure that it adapts to different screen sizes and devices, while maintaining a consistent user experience?"
+    },
+    {
+      "id": 6,
+      "question": null
+    },
+    {
+      "id": 7,
+      "question": "Amazon's website uses a responsive design to adapt to different screen sizes and devices. How would you implement a responsive navigation menu using CSS Grid and media queries, ensuring that it works seamlessly across various devices and browsers?"
+    },
+    {
+      "id": 8,
+      "question": "Amazon's search results page often features a variety of filters and facets, such as price range, brand, and customer reviews. How would you implement a dynamic filtering mechanism for these facets using Amazon's proprietary JavaScript library, Aria, and considering the constraints of Amazon's real-time pricing and inventory updates?"
+    },
+    {
+      "id": 9,
+      "question": "Amazon's product pages often feature a \"Frequently Bought Together\" section, which is rendered dynamically based on the user's browsing history and purchase behavior. How would you optimize the rendering of this section to minimize the impact on page load times, considering Amazon's massive scale and high traffic?"
+    },
+    {
+      "id": 10,
+      "question": "Amazon's checkout process involves multiple steps, and ensuring a seamless and secure experience is critical. How would you implement a secure and performant payment information input field, utilizing Amazon's proprietary payment tokenization service, and ensuring compliance with PCI-DSS standards?"
+    },
+    {
+      "id": 11,
+      "question": "How would you optimize the performance of an Amazon product detail page, which is heavily loaded with high-resolution product images, customer reviews, and real-time pricing information, while ensuring a seamless user experience across different devices and browsers?"
+    }
+  ]
+}

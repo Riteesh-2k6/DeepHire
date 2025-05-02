@@ -1,0 +1,52 @@
+{
+  "session_id": "b74be027-90d9-42ec-bf85-108b001ebe63",
+  "company": "Google",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": "How would you optimize the rendering of a large dataset in a Google Maps JavaScript API v3 application, considering the limitations of browser memory and the need to maintain a smooth user experience?"
+    },
+    {
+      "id": 2,
+      "question": "How would you approach implementing a responsive design for a Google AdWords campaign management page, considering the need for a consistent user experience across different devices and screen sizes?"
+    },
+    {
+      "id": 3,
+      "question": "How would you approach implementing accessibility features for users with disabilities in a Google Web Search results page, specifically for users who rely on screen readers?"
+    },
+    {
+      "id": 4,
+      "question": "Google's Material Design guidelines emphasize the importance of motion and animation in creating a engaging and responsive user experience. How would you implement a complex animation, such as a hero animation, in a Google Web App, like Google Photos, using modern Front End technologies and ensuring a smooth and performant animation on a wide range of devices?"
+    },
+    {
+      "id": 5,
+      "question": "How would you implement a responsive design for a Google AdSense ad unit on a web page, ensuring that the ad layout adapts to different screen sizes and devices?"
+    },
+    {
+      "id": 6,
+      "question": "How would you optimize the rendering of a large dataset in a Google Maps JavaScript API application, considering the impact on user experience and performance?"
+    },
+    {
+      "id": 7,
+      "question": null
+    },
+    {
+      "id": 8,
+      "question": "You are working on a new feature for Google Maps that requires rendering a large number of markers on the map. The markers need to be interactive, and the user should be able to filter them by category. How would you optimize the rendering of these markers to ensure smooth performance and minimize DOM mutations?"
+    },
+    {
+      "id": 9,
+      "question": "How would you implement accessibility features for users with disabilities in a Google Search results page, specifically for users who rely on screen readers?"
+    },
+    {
+      "id": 10,
+      "question": "How would you optimize the performance of a Google AdWords landing page, considering the impact of ad blockers and the need to ensure a fast and seamless user experience?"
+    },
+    {
+      "id": 11,
+      "question": "How would you implement accessibility features for users with color vision deficiency on a Google Search results page?"
+    }
+  ]
+}

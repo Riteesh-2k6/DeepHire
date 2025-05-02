@@ -1,0 +1,52 @@
+{
+  "session_id": "138b1395-838f-4d48-aaf5-ad50efd9a382",
+  "company": "Amazon",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": "How would you handle state management on an Amazon search results page, which displays a large list of products and allows users to filter and sort results in real-time?"
+    },
+    {
+      "id": 2,
+      "question": "Amazon's search results page is a critical component of the customer shopping experience. How would you implement infinite scrolling on this page while ensuring that the page remains accessible and performant, considering the large number of search results and varying device capabilities?"
+    },
+    {
+      "id": 3,
+      "question": "How would you optimize the performance of an Amazon product detail page, which is heavily loaded with high-resolution product images, customer reviews, and real-time pricing information, while ensuring a seamless user experience across different devices and browsers?"
+    },
+    {
+      "id": 4,
+      "question": "How would you implement a responsive design for an Amazon product recommendation widget, which displays a grid of product images and titles, to ensure that it adapts to different screen sizes and devices, while maintaining a consistent user experience?"
+    },
+    {
+      "id": 5,
+      "question": null
+    },
+    {
+      "id": 6,
+      "question": "Amazon's product detail page is one of the most visited pages on the website. How would you optimize the rendering of product images on this page to improve page load times, considering that the page has multiple image variants (e.g., high-resolution, low-resolution, and thumbnails) and the user's device and network conditions vary widely?"
+    },
+    {
+      "id": 7,
+      "question": "How would you implement accessibility features for visually impaired users on Amazon's search results page, which includes a grid of product tiles with various interactive elements?"
+    },
+    {
+      "id": 8,
+      "question": "Amazon's search results page often features a variety of filters and facets, such as price range, brand, and customer reviews. How would you implement a dynamic filtering mechanism for these facets using Amazon's proprietary JavaScript library, Aria, and considering the constraints of Amazon's real-time pricing and inventory updates?"
+    },
+    {
+      "id": 9,
+      "question": "Amazon's website uses a responsive design to adapt to different screen sizes and devices. How would you implement a responsive navigation menu using CSS Grid and media queries, ensuring that it works seamlessly across various devices and browsers?"
+    },
+    {
+      "id": 10,
+      "question": "How would you optimize the performance of an Amazon product details page, which is heavily reliant on JavaScript and has multiple third-party scripts, to ensure a seamless user experience?"
+    },
+    {
+      "id": 11,
+      "question": "Amazon's search results page features an autocomplete dropdown that provides suggestions as the user types. How would you implement this feature using Amazon's preferred JavaScript framework, React, and ensure it is accessible to users with disabilities?"
+    }
+  ]
+}

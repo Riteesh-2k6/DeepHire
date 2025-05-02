@@ -1,0 +1,52 @@
+{
+  "session_id": "69baa0a0-fee5-4e32-9bdf-f8ed7bbf15b6",
+  "company": "Google",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": "How would you implement a responsive design for a Google AdSense ad unit that adapts to different screen sizes and devices, while ensuring that the ad remains clickable and accessible?"
+    },
+    {
+      "id": 2,
+      "question": "How would you implement accessibility features for users with disabilities in a Google Search results page, specifically for users who rely on screen readers?"
+    },
+    {
+      "id": 3,
+      "question": "Google's search results page is rendered on the client-side using JavaScript. How would you optimize the rendering of search results when the user has a slow internet connection, and the page is loaded with a large number of search results (e.g., thousands of results)? Consider the impact on CPU usage, memory, and user experience."
+    },
+    {
+      "id": 4,
+      "question": "Google's Web Apps, such as Gmail and Google Drive, use the Closure Compiler to optimize and minify JavaScript code. How would you optimize the JavaScript code for a complex web application, like Google Maps, to achieve a significant reduction in file size and improvement in page load times?"
+    },
+    {
+      "id": 5,
+      "question": "You are tasked with optimizing the performance of Google Maps on mobile devices. Specifically, you need to reduce the latency when switching between map views (e.g., from satellite to street view). Assuming you have access to Google's proprietary Map Tiles system, how would you approach this optimization, and what specific techniques would you use to minimize latency?"
+    },
+    {
+      "id": 6,
+      "question": "How would you optimize the rendering of a large list of items in a Google Maps info window using JavaScript, considering the limitations of mobile devices?"
+    },
+    {
+      "id": 7,
+      "question": "How would you approach implementing accessibility features for users with disabilities in a Google Web Search results page, specifically for users who rely on screen readers?"
+    },
+    {
+      "id": 8,
+      "question": "How would you approach implementing a responsive design for a Google AdWords campaign management page, considering the need for a consistent user experience across different devices and screen sizes?"
+    },
+    {
+      "id": 9,
+      "question": null
+    },
+    {
+      "id": 10,
+      "question": "How would you optimize the performance of a Google AdSense ad slot on a webpage, considering factors like ad rendering, network latency, and user experience?"
+    },
+    {
+      "id": 11,
+      "question": "How would you optimize the rendering of Google Maps' Street View panorama images on a low-end mobile device, considering the limitations of mobile hardware and the need to maintain a smooth user experience?"
+    }
+  ]
+}

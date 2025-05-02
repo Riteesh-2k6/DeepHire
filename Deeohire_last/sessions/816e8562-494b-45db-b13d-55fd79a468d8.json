@@ -1,0 +1,52 @@
+{
+  "session_id": "816e8562-494b-45db-b13d-55fd79a468d8",
+  "company": "Google",
+  "domain": "Full Stack",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Optimize the performance of a Google Maps JavaScript API application, which is experiencing high latency and slow rendering of map tiles. The application uses the Google Maps JavaScript API to display real-time traffic data and nearby points of interest."
+    },
+    {
+      "id": 2,
+      "question": "Design a scalable and secure authentication system for Google Drive using OAuth 2.0 and OpenID Connect. Assume you need to support authentication for both web and mobile clients. How would you handle token refresh, token revocation, and unauthorized access?"
+    },
+    {
+      "id": 3,
+      "question": "Google's Maps API uses a combination of client-side and server-side geocoding to provide accurate location-based services. How would you implement a feature to auto-complete partial addresses using the Google Maps API, while handling cases where the user's input is ambiguous or incomplete, and ensuring a responsive user experience?"
+    },
+    {
+      "id": 4,
+      "question": "You're building a web application that allows users to search for nearby restaurants and display their locations on a map. The application should use Google Maps JavaScript API to render the map and display markers for each restaurant. However, due to the high volume of requests, you need to implement a solution to prevent abuse and ensure fair usage of the API. How would you design and implement a rate limiter for Google Maps API requests, and what would be the advantages and disadvantages of your approach?"
+    },
+    {
+      "id": 5,
+      "question": null
+    },
+    {
+      "id": 6,
+      "question": "Google's advertising business relies heavily on accurate tracking and measurement of ad clicks and conversions. How would you design a backend API using Google Cloud Platform (GCP) services to track and store ad conversion data, and what considerations would you take into account to ensure data accuracy and scalability?"
+    },
+    {
+      "id": 7,
+      "question": "Suppose you're building a new feature for Google Drive that allows users to collaborate on documents in real-time. How would you design the real-time collaboration system, considering latency and data consistency?"
+    },
+    {
+      "id": 8,
+      "question": "Design a real-time analytics pipeline for Google Ads using Google Cloud's BigQuery, Cloud Pub/Sub, and Cloud Functions. The pipeline should be able to handle high volumes of clickstream data and provide real-time insights to advertisers. How would you approach data ingestion, processing, and visualization, and what specific considerations would you make for scalability and reliability?"
+    },
+    {
+      "id": 9,
+      "question": "Google's web applications often require authentication and authorization to ensure that users have access to the correct resources and features. How would you implement authentication and authorization using Google's OAuth 2.0 and OpenID Connect protocols, and what benefits would this approach provide over traditional username and password authentication?"
+    },
+    {
+      "id": 10,
+      "question": "Suppose you're building a web application for Google Maps that allows users to search for nearby restaurants and filter the results based on cuisine type. How would you implement the filtering functionality on the client-side, and what Google-provided APIs or libraries would you use to achieve this?"
+    },
+    {
+      "id": 11,
+      "question": "How would you optimize the frontend performance of a Google Search results page, considering the page's complex layout and dynamic content?"
+    }
+  ]
+}

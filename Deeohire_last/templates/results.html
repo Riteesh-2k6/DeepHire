@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: white;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .results-summary {
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .summary-text {
+            flex: 1;
+        }
+        .score-display {
+            background-color: #3a3a3a;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-left: 20px;
+        }
+        .score-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4285f4;
+        }
+        .score-label {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .interview-details {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .detail-item {
+            background-color: #3a3a3a;
+            border-radius: 5px;
+            padding: 8px 15px;
+        }
+        .detail-item strong {
+            color: #4285f4;
+            margin-right: 5px;
+        }
+        .responses-container {
+            margin-top: 30px;
+        }
+        .response-card {
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+        .answer-container {
+            background-color: #3a3a3a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .answer-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4285f4;
+        }
+        .answer-text {
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .model-answer {
+            background-color: #2a2a2a;
+            border-left: 4px solid #34a853;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+        .evaluation-container {
+            background-color: #3a3a3a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #4285f4;
+        }
+        .evaluation-score {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4285f4;
+        }
+        .evaluation-feedback {
+            line-height: 1.6;
+        }
+        .actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+            gap: 20px;
+        }
+        .action-btn {
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .primary-btn {
+            background-color: #4285f4;
+            color: white;
+        }
+        .primary-btn:hover {
+            background-color: #3367d6;
+            transform: translateY(-2px);
+        }
+        .secondary-btn {
+            background-color: #3a3a3a;
+            color: white;
+        }
+        .secondary-btn:hover {
+            background-color: #2d2d2d;
+            transform: translateY(-2px);
+        }
+        .performance-chart {
+            margin: 20px 0;
+            height: 200px;
+            background-color: #2d2d2d;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .chart-container {
+            height: 100%;
+            width: 100%;
+        }
+        .performance-area {
+            margin-bottom: 30px;
+        }
+        .model-toggle {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        .model-toggle button {
+            background-color: #3a3a3a;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .model-toggle button:hover {
+            background-color: #4285f4;
+        }
+        .model-answer {
+            display: none;
+        }
+        .model-answer.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Technical Interview Results</h1>
+        </div>
+        
+        <div class="results-summary">
+            <div class="summary-text">
+                <h2>Interview Performance Summary</h2>
+                <p>Thank you for completing the mock technical interview. Below is a summary of your performance.</p>
+                <div class="interview-details">
+                    <div class="detail-item">
+                        <strong>Company:</strong> {{ session_info.company|title }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Domain:</strong> {{ session_info.domain|title }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Difficulty:</strong> {{ session_info.difficulty|title }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Questions:</strong> {{ responses|length }}
+                    </div>
+                </div>
+            </div>
+            <div class="score-display">
+                <div class="score-value">{{ "%.1f"|format(total_score) }}</div>
+                <div class="score-label">Out of 10</div>
+            </div>
+        </div>
+        
+        <div class="performance-area">
+            <h2>Performance Overview</h2>
+            <div class="performance-chart">
+                <div class="chart-container" id="scoreChart"></div>
+            </div>
+            
+            {% if total_score >= 8 %}
+                <div class="evaluation-container">
+                    <div class="evaluation-score">Outstanding Performance!</div>
+                    <div class="evaluation-feedback">Your responses demonstrate strong technical knowledge and excellent communication skills. You're well prepared for interviews at this level.</div>
+                </div>
+            {% elif total_score >= 6 %}
+                <div class="evaluation-container">
+                    <div class="evaluation-score">Good Performance</div>
+                    <div class="evaluation-feedback">You have demonstrated solid understanding of the technical concepts. With a bit more practice on specific areas highlighted in feedback, you'll be well-positioned for success.</div>
+                </div>
+            {% elif total_score >= 4 %}
+                <div class="evaluation-container">
+                    <div class="evaluation-score">Average Performance</div>
+                    <div class="evaluation-feedback">You have a basic grasp of the required concepts but need more practice to fully develop your responses. Focus on the areas mentioned in the feedback below.</div>
+                </div>
+            {% else %}
+                <div class="evaluation-container">
+                    <div class="evaluation-score">Needs Improvement</div>
+                    <div class="evaluation-feedback">Your responses suggest you need more preparation before interviewing at this level. Review the model answers and focus on building stronger technical foundations.</div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="responses-container">
+            <h2>Detailed Response Analysis</h2>
+            
+            {% for response in responses %}
+                <div class="response-card">
+                    <h3>Question {{ loop.index }}</h3>
+                    <div class="question">{{ response.question }}</div>
+                    
+                    <div class="answer-container">
+                        <div class="answer-header">Your Answer:</div>
+                        <div class="answer-text">{{ response.user_answer }}</div>
+                    </div>
+                    
+                    <div class="model-toggle">
+                        <button onclick="toggleModelAnswer('model{{ loop.index }}')">Show/Hide Model Answer</button>
+                    </div>
+                    
+                    <div class="model-answer" id="model{{ loop.index }}">
+                        <div class="answer-header">Model Answer:</div>
+                        <div class="answer-text">{{ response.model_answer }}</div>
+                    </div>
+                    
+                    <div class="evaluation-container">
+                        <div class="evaluation-score">Score: {{ "%.1f"|format(response.evaluation_score) }}/10</div>
+                        <div class="evaluation-feedback">{{ response.evaluation_feedback }}</div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="actions">
+            <button class="action-btn primary-btn" onclick="window.location.href='/'">Start New Interview</button>
+            <button class="action-btn secondary-btn" onclick="window.print()">Print Results</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Function to toggle model answers
+    window.toggleModelAnswer = function(id) {
+        const modelAnswer = document.getElementById(id);
+        if (modelAnswer) {
+            modelAnswer.classList.toggle('show');
+        }
+    };
+    
+    // Create and render the score chart if Chart.js is available
+    if (typeof Chart !== 'undefined') {
+        createScoreChart();
+    } else {
+        // Load Chart.js dynamically if not available
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js';
+        script.onload = createScoreChart;
+        document.head.appendChild(script);
+    }
+    
+    function createScoreChart() {
+        // Get question numbers and scores from the page
+        const questions = [];
+        const scores = [];
+        
+        document.querySelectorAll('.response-card').forEach((card, index) => {
+            questions.push(`Q${index + 1}`);
+            const scoreText = card.querySelector('.evaluation-score').textContent;
+            const score = parseFloat(scoreText.match(/[\d.]+/)[0]);
+            scores.push(score);
+        });
+        
+        // Create chart
+        const ctx = document.getElementById('scoreChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: questions,
+                    datasets: [{
+                        label: 'Question Scores',
+                        data: scores,
+                        backgroundColor: 'rgba(66, 133, 244, 0.7)',
+                        borderColor: 'rgba(66, 133, 244, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.8)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+});
+    </script>
+</body>
+</html>

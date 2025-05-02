@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Answer Evaluator - Upload</title>
+    <style>
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --text-color: #f5f5f5;
+            --accent-color: #26619c; /* Lapis Lazuli */
+            --accent-light: #3f88c5; /* Lighter Lapis Lazuli */
+            --accent-dark: #1e4976; /* Darker Lapis Lazuli */
+            --border-color: #333333;
+            --success-color: #4caf50;
+            --error-color: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background-color: var(--accent-color);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--accent-color);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--accent-light);
+            background-color: rgba(38, 97, 156, 0.05);
+        }
+        
+        .upload-area.active {
+            border-color: var(--accent-light);
+            background-color: rgba(38, 97, 156, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+        
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1.5rem;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background-color: var(--accent-light);
+        }
+        
+        .btn:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-info {
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .file-info.visible {
+            display: block;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar.visible {
+            display: block;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .error-message.visible {
+            display: block;
+        }
+        
+        .instructions {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .instructions code {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--secondary-bg);
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Answer Evaluator</h1>
+    </header>
+    
+    <main>
+        <div class="container">
+            <h2>Upload Your Question-Answer JSON File</h2>
+            
+            <div class="instructions">
+                <p>Upload a JSON file containing questions, user answers, and expected answers for evaluation.</p>
+                <p>Your JSON file should follow this format:</p>
+                <pre><code>[
+  {
+    "question": "What is the capital of France?",
+    "user_answer": "Paris is the capital of France.",
+    "expected_answer": "The capital of France is Paris."
+  },
+  {
+    "question": "...",
+    "user_answer": "...",
+    "expected_answer": "..."
+  }
+]</code></pre>
+            </div>
+            
+            <form id="upload-form" action="/evaluate" method="post" enctype="multipart/form-data">
+                <div id="drop-area" class="upload-area">
+                    <div class="upload-icon">📄</div>
+                    <h3>Drag & Drop JSON File Here</h3>
+                    <p>or</p>
+                    <label for="file-input" class="btn">Browse Files</label>
+                    <input type="file" id="file-input" name="file" accept=".json">
+                </div>
+                
+                <div id="file-info" class="file-info">
+                    <p>Selected file: <span id="file-name"></span></p>
+                    <p>Size: <span id="file-size"></span></p>
+                </div>
+                
+                <div id="progress-container" class="progress-bar">
+                    <div id="progress" class="progress"></div>
+                </div>
+                
+                <div id="error-message" class="error-message"></div>
+                
+                <button type="submit" id="submit-btn" class="btn" disabled>Evaluate Answers</button>
+            </form>
+        </div>
+    </main>
+    
+    <footer>
+        <p>Answer Evaluator Tool - Powered by Groq API</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+            const fileInfo = document.getElementById('file-info');
+            const fileName = document.getElementById('file-name');
+            const fileSize = document.getElementById('file-size');
+            const submitBtn = document.getElementById('submit-btn');
+            const progressContainer = document.getElementById('progress-container');
+            const progress = document.getElementById('progress');
+            const errorMessage = document.getElementById('error-message');
+            const uploadForm = document.getElementById('upload-form');
+            
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            // Highlight drop area when a file is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            // Handle dropped files
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            // Handle file selection via the file input
+            fileInput.addEventListener('change', handleFileSelect, false);
+            
+            // Handle form submission
+            uploadForm.addEventListener('submit', handleSubmit, false);
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            function highlight() {
+                dropArea.classList.add('active');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('active');
+            }
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    handleFiles(files);
+                }
+            }
+            
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                handleFiles(files);
+            }
+            
+            function handleFiles(files) {
+                if (files.length === 0) return;
+                
+                const file = files[0];
+                
+                // Check if the file is a JSON file
+                if (!file.name.toLowerCase().endsWith('.json')) {
+                    showError('Please select a JSON file.');
+                    return;
+                }
+                
+                // Display file information
+                fileName.textContent = file.name;
+                fileSize.textContent = formatBytes(file.size);
+                fileInfo.classList.add('visible');
+                
+                // Enable the submit button
+                submitBtn.disabled = false;
+                
+                // Clear any previous error messages
+                hideError();
+                
+                // Validate JSON file
+                validateJsonFile(file);
+            }
+            
+            function validateJsonFile(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const json = JSON.parse(e.target.result);
+                        
+                        // Check if the JSON has the correct structure
+                        if (!Array.isArray(json)) {
+                            showError('The JSON file must contain an array of question-answer objects.');
+                            submitBtn.disabled = true;
+                            return;
+                        }
+                        
+                        // Check if each item has the required fields
+                        for (let i = 0; i < json.length; i++) {
+                            const item = json[i];
+                            if (!item.question || !item.user_answer || !item.expected_answer) {
+                                showError(`Item ${i+1} is missing required fields (question, user_answer, expected_answer).`);
+                                submitBtn.disabled = true;
+                                return;
+                            }
+                        }
+                        
+                        // If all checks pass, enable the submit button
+                        submitBtn.disabled = false;
+                        
+                    } catch (error) {
+                        showError('Invalid JSON format. Please check your file.');
+                        submitBtn.disabled = true;
+                    }
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            function handleSubmit(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(uploadForm);
+                
+                // Show progress bar
+                progressContainer.classList.add('visible');
+                progress.style.width = '0%';
+                
+                // Disable submit button during upload
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+                
+                // Simulate progress
+                let progressValue = 0;
+                const progressInterval = setInterval(() => {
+                    if (progressValue >= 90) {
+                        clearInterval(progressInterval);
+                    } else {
+                        progressValue += 5;
+                        progress.style.width = `${progressValue}%`;
+                    }
+                }, 300);
+                
+                fetch('/evaluate', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(text || 'An error occurred during evaluation');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Complete the progress bar
+                    clearInterval(progressInterval);
+                    progress.style.width = '100%';
+                    
+                    // Redirect to results page
+                    setTimeout(() => {
+                        window.location.href = `/results/${data.result_id}`;
+                    }, 500);
+                })
+                .catch(error => {
+                    // Handle errors
+                    clearInterval(progressInterval);
+                    progressContainer.classList.remove('visible');
+                    showError(error.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Evaluate Answers';
+                });
+            }
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('visible');
+            }
+            
+            function hideError() {
+                errorMessage.textContent = '';
+                errorMessage.classList.remove('visible');
+            }
+            
+            function formatBytes(bytes, decimals = 2) {
+                if (bytes === 0) return '0 Bytes';
+                
+                const k = 1024;
+                const dm = decimals < 0 ? 0 : decimals;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html>

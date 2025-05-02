@@ -1,0 +1,52 @@
+{
+  "session_id": "4cc98266-56e7-44f4-b62e-ad68332e7e1c",
+  "company": "Infosys",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": null
+    },
+    {
+      "id": 2,
+      "question": "Infosys often works with clients in the financial services industry, where accessibility is a critical requirement. How would you ensure that a web application meets the Web Content Accessibility Guidelines (WCAG 2.1) for users with disabilities, particularly those with visual impairments?"
+    },
+    {
+      "id": 3,
+      "question": "Infosys is developing a responsive web application for a banking client using HTML, CSS, and JavaScript. The application requires a layout that adapts to different screen sizes and devices. How would you implement a mobile-first approach using CSS media queries to ensure a responsive design?"
+    },
+    {
+      "id": 4,
+      "question": "Infosys is building a web application for a healthcare client using AngularJS. The application requires a feature to display a list of patients with their corresponding medical records. How would you implement data binding in AngularJS to display the patient list and update it in real-time when new patients are added or existing patients are updated?"
+    },
+    {
+      "id": 5,
+      "question": "Infosys uses React as one of its primary front-end technologies. How would you optimize the performance of a React application by reducing the number of re-renders, considering that the application has a complex component tree with multiple nested components?"
+    },
+    {
+      "id": 6,
+      "question": "How would you implement accessibility features in a web application built using Infosys's Wingspan digital learning platform, which caters to a diverse range of users with disabilities?"
+    },
+    {
+      "id": 7,
+      "question": "Infosys is developing a single-page application (SPA) for a retail client that requires fast rendering and efficient data binding. The application uses React as the front-end framework, and Redux for state management. How would you optimize the rendering of a large list of products in the application, and what techniques would you use to minimize the re-renders of the component tree?"
+    },
+    {
+      "id": 8,
+      "question": "Infosys is building a new progressive web app (PWA) for a financial services client using Angular, Angular Material, and Service Workers. The application requires a feature to display real-time stock prices and updates, even when the user is offline or has a slow internet connection. How would you implement real-time updates and offline support in this scenario, and what considerations would you take into account for security and data integrity?"
+    },
+    {
+      "id": 9,
+      "question": "Infosys is building a single-page application using Angular and TypeScript. The application requires a feature to display a chart with real-time data that updates every minute. How would you implement this feature using Angular and TypeScript, and what considerations would you keep in mind for handling large datasets and performance optimization?"
+    },
+    {
+      "id": 10,
+      "question": "Infosys is developing a web application that requires real-time data visualization and charting capabilities. The application needs to handle large datasets and provide smooth animation and interaction. How would you optimize the performance of a D3.js-based data visualization component in a React application, and ensure that it can handle large datasets without compromising the user experience?"
+    },
+    {
+      "id": 11,
+      "question": "Infosys is developing a new e-commerce platform for a retail client, and the client requires a highly performant and scalable solution. How would you optimize the front-end rendering of a product catalog page that displays thousands of products, using React, Redux, and Webpack, while ensuring that the solution is compatible with Infosys's existing DevOps pipeline?"
+    }
+  ]
+}

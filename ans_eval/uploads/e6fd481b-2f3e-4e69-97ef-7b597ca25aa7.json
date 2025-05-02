@@ -1,0 +1,85 @@
+{
+  "session_id": "e6fd481b-2f3e-4e69-97ef-7b597ca25aa7",
+  "company": "Google",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "evaluated_at": "2025-04-24T23:01:56.358058",
+  "average_score": 0.0,
+  "correctness_score": 0.0,
+  "completeness_score": 0.0,
+  "clarity_score": 0.0,
+  "technical_score": 0.0,
+  "summary": "The candidate completed 10 Easy-level questions in the Front End domain for Google. Overall performance was needs improvement with an average score of 0.0/10. Significant improvement is needed across all evaluation criteria.",
+  "questions": [
+    {
+      "question": "How would you optimize the rendering of a large dataset in a Google Maps JavaScript API v3 application, considering the limitations of browser memory and the need to maintain a smooth user experience?",
+      "answer": "464664y",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "You are working on a new feature for Google Search that requires rendering a complex chart with interactive elements. The chart needs to be accessible on a wide range of devices, including mobile and desktop. How would you approach making this chart accessible and responsive?",
+      "answer": "trhhht",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "Google's Material Design guidelines emphasize the use of motion and animations to enhance the user experience. How would you implement a performant and accessible animation for a complex UI component, such as a carousel, using Web Animations API and modern CSS features?",
+      "answer": "htrhthth",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "Google's search results page uses a complex layout with multiple components, such as the knowledge graph, ads, and search results. How would you approach implementing a responsive design for this page, ensuring that it adapts to different screen sizes, devices, and orientations, while maintaining accessibility and performance?",
+      "answer": "u7tututi",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "How would you optimize the rendering of a large dataset in a Google Maps JavaScript API application, considering the impact on user experience and performance?",
+      "answer": "yjjjyjyjy",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "How would you optimize the performance of a Google AdSense ad slot on a webpage, considering factors like ad rendering, network latency, and user experience?",
+      "answer": "tghjkjytkj",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "How would you optimize the performance of a Google AdWords landing page, considering the impact of ad blockers and the need to ensure a fast and seamless user experience?",
+      "answer": "teyutjkytty",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "Google's Material Design guidelines emphasize the importance of motion and animation in creating a engaging and responsive user experience. How would you implement a complex animation, such as a hero animation, in a Google Web App, like Google Photos, using modern Front End technologies and ensuring a smooth and performant animation on a wide range of devices?",
+      "answer": "tyjukjykhjg",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "You are tasked with optimizing the performance of Google Maps on mobile devices. Specifically, you need to reduce the latency when switching between map views (e.g., from satellite to street view). Assuming you have access to Google's proprietary Map Tiles system, how would you approach this optimization, and what specific techniques would you use to minimize latency?",
+      "answer": "ghjmkthrteyj,",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    },
+    {
+      "question": "You are working on a new feature for Google Ads that requires rendering a large number of ads on a single page. The ads need to be loaded dynamically, and the user should be able to scroll through the ads quickly and smoothly. How would you approach optimizing the loading and rendering of these ads to ensure fast and smooth performance?",
+      "answer": "gthtjkg",
+      "model_answer": "Unable to generate model answer due to an error.",
+      "score": 0,
+      "feedback": "Evaluation failed due to an error: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    }
+  ]
+}

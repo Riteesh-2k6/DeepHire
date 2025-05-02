@@ -1,0 +1,52 @@
+{
+  "session_id": "040918d2-2a17-4246-b9c6-733f11ebaa93",
+  "company": "Amazon",
+  "domain": "Back End",
+  "difficulty": "Medium",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Amazon's DynamoDB is a popular NoSQL database service that provides fast and predictable performance. How would you optimize the performance of a DynamoDB table that is experiencing high latency and throughput issues, especially during peak shopping seasons like Prime Day?"
+    },
+    {
+      "id": 2,
+      "question": "Amazon's e-commerce platform uses a microservices architecture to handle high traffic and scalability. How would you handle communication between multiple microservices in a transactional workflow, ensuring data consistency and integrity?"
+    },
+    {
+      "id": 3,
+      "question": "You are tasked with optimizing the performance of Amazon's e-commerce platform, which uses a monolithic Java-based application running on Tomcat. The application is experiencing high latency and memory usage during peak sales events. How would you optimize the application's performance, and what tools and technologies would you use?"
+    },
+    {
+      "id": 4,
+      "question": "Amazon's Fulfillment by Amazon (FBA) service uses a microservices-based architecture to handle high volumes of orders. Design a caching strategy to improve the performance of the Order Processing Service, which receives a high volume of requests to update order status. Assume the service uses Amazon DynamoDB as the primary data store and is built using Java and Spring Boot."
+    },
+    {
+      "id": 5,
+      "question": "Amazon's recommendation engine relies heavily on machine learning models to provide personalized recommendations to customers. How would you deploy and manage a machine learning model in a production environment using Amazon SageMaker and AWS Lambda?"
+    },
+    {
+      "id": 6,
+      "question": "Amazon's Fulfillment by Amazon (FBA) service relies heavily on its inventory management system to ensure accurate and timely order fulfillment. How would you design a database schema to store inventory levels for millions of products across thousands of warehouses, considering data consistency, scalability, and query performance?"
+    },
+    {
+      "id": 7,
+      "question": "Amazon's e-commerce platform uses a service-oriented architecture to handle high volumes of traffic and transactions. Design a fault-tolerant architecture for the Payment Processing Service, which receives a high volume of payment requests from various sources, such as website and mobile app. Assume the service uses Amazon EC2, Amazon RDS, and Amazon SQS."
+    },
+    {
+      "id": 8,
+      "question": "As an Amazon engineer, you're tasked with designing a RESTful API for retrieving product recommendations based on customer browsing history. How would you implement caching to improve the performance of this API, considering Amazon's high traffic and scalability requirements?"
+    },
+    {
+      "id": 9,
+      "question": "Design a data pipeline to ingest and process massive amounts of data from Amazon's Alexa devices, including voice commands, device interactions, and sensor data. The pipeline should be capable of handling 100,000 events per second, with a latency of under 1 second, and storing data in Amazon S3 for further analysis. How would you approach this problem, and what technologies would you use?"
+    },
+    {
+      "id": 10,
+      "question": null
+    },
+    {
+      "id": 11,
+      "question": "Design a scalable and fault-tolerant architecture for Amazon's product recommendation system, which handles millions of requests per second and requires real-time processing of user behavior data. Assume you have a team of 10 engineers and a budget of $1 million for infrastructure costs. How would you approach this problem, and what technologies would you use?"
+    }
+  ]
+}

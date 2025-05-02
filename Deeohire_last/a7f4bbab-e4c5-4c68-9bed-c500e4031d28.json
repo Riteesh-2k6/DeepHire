@@ -1,0 +1,45 @@
+{
+  "session_id": "a7f4bbab-e4c5-4c68-9bed-c500e4031d28",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Google's data processing pipelines often involve processing large datasets in parallel using tools like Apache Beam. Implement a Python function to parallelize the processing of a list of items using the concurrent.futures module."
+    },
+    {
+      "id": 2,
+      "question": "Implement a simple caching mechanism using Python's `functools` module to memoize the results of a function that fetches data from a Google Cloud Storage bucket. Assume the function takes a bucket name and a file path as input."
+    },
+    {
+      "id": 3,
+      "question": "Google's Cloud Storage service provides a scalable and durable storage solution for large datasets. Suppose you're working on a Python project that involves processing large files stored in Cloud Storage using the `google-cloud-storage` library. However, the file processing involves complex business logic and error handling, which makes the code difficult to read and maintain. How would you refactor the code to improve its readability and maintainability, and what Python features or best practices would you use to achieve this?"
+    },
+    {
+      "id": 4,
+      "question": "Google's Google Maps platform uses geocoding to convert addresses to latitude and longitude coordinates. Write a Python function that uses the `requests` library to make a GET request to the OpenCage Geocoder API and retrieve the coordinates for a given address."
+    },
+    {
+      "id": 5,
+      "question": "Google's Maps platform relies heavily on geospatial data processing. Suppose you're tasked with writing a Python script to calculate the distance between two geographic points on the surface of the Earth using the Haversine formula. However, the script needs to handle a large volume of point coordinates and must be optimized for performance. How would you implement the script using Python's NumPy library and vectorized operations?"
+    },
+    {
+      "id": 6,
+      "question": "Google's search algorithms rely on data structures like tries to efficiently store and query large amounts of data. Implement a basic trie data structure in Python to store a collection of strings. The trie should support insertion, search, and prefix matching."
+    },
+    {
+      "id": 7,
+      "question": "Google's core search algorithm relies heavily on graph processing. Implement a Python function to detect cycles in a directed graph using a Depth-First Search (DFS) approach. The graph is represented as an adjacency list, where each key is a node and its corresponding value is a list of neighboring nodes."
+    },
+    {
+      "id": 8,
+      "question": "Google's search results page uses a combination of caching and pagination to efficiently display search results. Write a Python function that takes a list of search results and returns a paginated version of the results, with a maximum of 10 results per page."
+    },
+    {
+      "id": 9,
+      "question": "Google's AdWords platform uses Python to process and analyze large datasets. Write a Python function that takes a list of dictionaries, where each dictionary represents an ad campaign, and returns the average cost-per-click (CPC) across all campaigns."
+    },
+    {
+      "id": 10,
+      "question": "Google's AdWords platform uses protobuf (Protocol Buffers) to serialize and deserialize data. Write a Python function that uses the `protobuf` library to encode a simple message containing a string and an integer."
+    }
+  ]
+}

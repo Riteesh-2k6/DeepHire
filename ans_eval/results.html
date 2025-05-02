@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Answer Evaluation Results</title>
+    <style>
+        :root {
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --card-bg: #262626;
+            --text-color: #f5f5f5;
+            --accent-color: #26619c; /* Lapis Lazuli */
+            --accent-light: #3f88c5; /* Lighter Lapis Lazuli */
+            --accent-dark: #1e4976; /* Darker Lapis Lazuli */
+            --border-color: #333333;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --error-color: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background-color: var(--accent-color);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        main {
+            flex: 1;
+            padding: 2rem;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background-color: var(--accent-light);
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .summary-card {
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: var(--accent-light);
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #aaa;
+        }
+        
+        .evaluations {
+            margin-top: 3rem;
+        }
+        
+        .evaluation-card {
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .evaluation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .question {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .answer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .answer-box {
+            background-color: var(--card-bg);
+            border-radius: 4px;
+            padding: 1rem;
+        }
+        
+        .answer-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent-light);
+        }
+        
+        .scores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .score-item {
+            background-color: var(--card-bg);
+            border-radius: 4px;
+            padding: 1rem;
+        }
+        
+        .score-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .score-bar {
+            height: 8px;
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .score-feedback {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            color: #ddd;
+        }
+        
+        .improvement {
+            background-color: var(--card-bg);
+            border-radius: 4px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .improvement-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--accent-light);
+        }
+        
+        .toggle-details {
+            background: none;
+            border: none;
+            color: var(--accent-light);
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .details-content {
+            display: none;
+        }
+        
+        .details-content.visible {
+            display: block;
+        }
+        
+        .arrow {
+            transition: transform 0.3s ease;
+        }
+        
+        .arrow.down {
+            transform: rotate(90deg);
+        }
+        
+        .total-score {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .score-color-high {
+            color: var(--success-color);
+        }
+        
+        .score-color-medium {
+            color: var(--warning-color);
+        }
+        
+        .score-color-low {
+            color: var(--error-color);
+        }
+        
+        .fill-color-high {
+            background-color: var(--success-color);
+        }
+        
+        .fill-color-medium {
+            background-color: var(--warning-color);
+        }
+        
+        .fill-color-low {
+            background-color: var(--error-color);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--secondary-bg);
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: auto;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .answer-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .scores {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Answer Evaluation Results</h1>
+    </header>
+    
+    <main>
+        <div class="container">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h2>Evaluation Summary</h2>
+                    <a href="/" class="btn btn-sm">New Evaluation</a>
+                </div>
+                
+                <div class="summary-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Questions</div>
+                        <div class="stat-value" id="total-questions">{{ summary.total_questions }}</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Average Score</div>
+                        <div class="stat-value" id="average-score">{{ summary.average_score }}/10</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Highest Score</div>
+                        <div class="stat-value" id="highest-score">{{ summary.highest_score }}/10</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Lowest Score</div>
+                        <div class="stat-value" id="lowest-score">{{ summary.lowest_score }}/10</div>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <a href="/download/{{ result_id }}" class="btn">Download Results (JSON)</a>
+                </div>
+            </div>
+            
+            <div class="evaluations">
+                <h2>Individual Question Evaluations</h2>
+                
+                {% for evaluation in evaluations %}
+                <div class="evaluation-card">
+                    <div class="evaluation-header">
+                        <h3>Question {{ loop.index }}</h3>
+                        <div class="total-score {% if evaluation.total_score >= 8 %}score-color-high{% elif evaluation.total_score >= 6 %}score-color-medium{% else %}score-color-low{% endif %}">
+                            {{ evaluation.total_score }}/10
+                        </div>
+                    </div>
+                    
+                    <div class="question">{{ evaluation.question }}</div>
+                    
+                    <button class="toggle-details" data-target="details-{{ loop.index }}">
+                        <span class="arrow">▶</span> Show Details
+                    </button>
+                    
+                    <div class="details-content" id="details-{{ loop.index }}">
+                        <div class="answer-container">
+                            <div class="answer-box">
+                                <div class="answer-title">User Answer</div>
+                                <div>{{ evaluation.user_answer }}</div>
+                            </div>
+                            
+                            <div class="answer-box">
+                                <div class="answer-title">Expected Answer</div>
+                                <div>{{ evaluation.expected_answer }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="scores">
+                            <div class="score-item">
+                                <div class="score-title">Correctness</div>
+                                <div class="score-value {% if evaluation.correctness.score >= 8 %}score-color-high{% elif evaluation.correctness.score >= 6 %}score-color-medium{% else %}score-color-low{% endif %}">
+                                    {{ evaluation.correctness.score }}/10
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-fill {% if evaluation.correctness.score >= 8 %}fill-color-high{% elif evaluation.correctness.score >= 6 %}fill-color-medium{% else %}fill-color-low{% endif %}" style="width: {{ evaluation.correctness.score * 10 }}%"></div>
+                                </div>
+                                <div class="score-feedback">{{ evaluation.correctness.feedback }}</div>
+                            </div>
+                            
+                            <div class="score-item">
+                                <div class="score-title">Completeness</div>
+                                <div class="score-value {% if evaluation.completeness.score >= 8 %}score-color-high{% elif evaluation.completeness.score >= 6 %}score-color-medium{% else %}score-color-low{% endif %}">
+                                    {{ evaluation.completeness.score }}/10
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-fill {% if evaluation.completeness.score >= 8 %}fill-color-high{% elif evaluation.completeness.score >= 6 %}fill-color-medium{% else %}fill-color-low{% endif %}" style="width: {{ evaluation.completeness.score * 10 }}%"></div>
+                                </div>
+                                <div class="score-feedback">{{ evaluation.completeness.feedback }}</div>
+                            </div>
+                            
+                            <div class="score-item">
+                                <div class="score-title">Clarity</div>
+                                <div class="score-value {% if evaluation.clarity.score >= 8 %}score-color-high{% elif evaluation.clarity.score >= 6 %}score-color-medium{% else %}score-color-low{% endif %}">
+                                    {{ evaluation.clarity.score }}/10
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-fill {% if evaluation.clarity.score >= 8 %}fill-color-high{% elif evaluation.clarity.score >= 6 %}fill-color-medium{% else %}fill-color-low{% endif %}" style="width: {{ evaluation.clarity.score * 10 }}%"></div>
+                                </div>
+                                <div class="score-feedback">{{ evaluation.clarity.feedback }}</div>
+                            </div>
+                            
+                            <div class="score-item">
+                                <div class="score-title">Relevance</div>
+                                <div class="score-value {% if evaluation.relevance.score >= 8 %}score-color-high{% elif evaluation.relevance.score >= 6 %}score-color-medium{% else %}score-color-low{% endif %}">
+                                    {{ evaluation.relevance.score }}/10
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-fill {% if evaluation.relevance.score >= 8 %}fill-color-high{% elif evaluation.relevance.score >= 6 %}fill-color-medium{% else %}fill-color-low{% endif %}" style="width: {{ evaluation.relevance.score * 10 }}%"></div>
+                                </div>
+                                <div class="score-feedback">{{ evaluation.relevance.feedback }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="improvement">
+                            <div class="improvement-title">Improvement Suggestions</div>
+                            <div>{{ evaluation.improvement_suggestions }}</div>
+                        </div>
+                        
+                        <div class="improvement">
+                            <div class="improvement-title">Summary Assessment</div>
+                            <div>{{ evaluation.summary }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>Answer Evaluator Tool - Powered by Groq API</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle details sections
+            const toggleButtons = document.querySelectorAll('.toggle-details');
+            
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const targetElement = document.getElementById(targetId);
+                    const arrow = this.querySelector('.arrow');
+                    
+                    // Toggle visibility
+                    targetElement.classList.toggle('visible');
+                    
+                    // Toggle arrow direction
+                    arrow.classList.toggle('down');
+                    
+                    // Update button text
+                    this.textContent = targetElement.classList.contains('visible') ? 
+                        '▶ Hide Details' : '▶ Show Details';
+                    
+                    // Add arrow back since textContent replaced it
+                    this.prepend(arrow);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

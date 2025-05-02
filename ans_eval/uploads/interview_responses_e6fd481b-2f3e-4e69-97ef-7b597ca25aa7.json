@@ -1,0 +1,86 @@
+{
+  "session_id": "e6fd481b-2f3e-4e69-97ef-7b597ca25aa7",
+  "company": "Google",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "completed_at": "2025-04-24T14:43:28.189Z",
+  "answers": [
+    {
+      "question_id": 1,
+      "question": "How would you optimize the rendering of a large dataset in a Google Maps JavaScript API v3 application, considering the limitations of browser memory and the need to maintain a smooth user experience?",
+      "answer": "464664y",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 2,
+      "question": "You are working on a new feature for Google Search that requires rendering a complex chart with interactive elements. The chart needs to be accessible on a wide range of devices, including mobile and desktop. How would you approach making this chart accessible and responsive?",
+      "answer": "trhhht",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 3,
+      "question": "Google's Material Design guidelines emphasize the use of motion and animations to enhance the user experience. How would you implement a performant and accessible animation for a complex UI component, such as a carousel, using Web Animations API and modern CSS features?",
+      "answer": "htrhthth",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 4,
+      "question": "Google's search results page uses a complex layout with multiple components, such as the knowledge graph, ads, and search results. How would you approach implementing a responsive design for this page, ensuring that it adapts to different screen sizes, devices, and orientations, while maintaining accessibility and performance?",
+      "answer": "u7tututi",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 5,
+      "question": "How would you optimize the rendering of a large dataset in a Google Maps JavaScript API application, considering the impact on user experience and performance?",
+      "answer": "yjjjyjyjy",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 6,
+      "question": "How would you optimize the performance of a Google AdSense ad slot on a webpage, considering factors like ad rendering, network latency, and user experience?",
+      "answer": "tghjkjytkj",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 7,
+      "question": "How would you optimize the performance of a Google AdWords landing page, considering the impact of ad blockers and the need to ensure a fast and seamless user experience?",
+      "answer": "teyutjkytty",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 8,
+      "question": "Google's Material Design guidelines emphasize the importance of motion and animation in creating a engaging and responsive user experience. How would you implement a complex animation, such as a hero animation, in a Google Web App, like Google Photos, using modern Front End technologies and ensuring a smooth and performant animation on a wide range of devices?",
+      "answer": "tyjukjykhjg",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 9,
+      "question": "You are tasked with optimizing the performance of Google Maps on mobile devices. Specifically, you need to reduce the latency when switching between map views (e.g., from satellite to street view). Assuming you have access to Google's proprietary Map Tiles system, how would you approach this optimization, and what specific techniques would you use to minimize latency?",
+      "answer": "ghjmkthrteyj,",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 10,
+      "question": null,
+      "answer": "thyjkhthjk",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 11,
+      "question": "You are working on a new feature for Google Ads that requires rendering a large number of ads on a single page. The ads need to be loaded dynamically, and the user should be able to scroll through the ads quickly and smoothly. How would you approach optimizing the loading and rendering of these ads to ensure fast and smooth performance?",
+      "answer": "gthtjkg",
+      "domain": "Front End",
+      "difficulty": "Easy"
+    }
+  ]
+}

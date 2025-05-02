@@ -1,0 +1,10 @@
+{
+  "question_id": 1,
+  "question": "How would you optimize the rendering of a large dataset in a Google Maps JavaScript API v3 application, considering the limitations of browser memory and the need to maintain a smooth user experience?",
+  "answer": "thhgftr",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "evaluated": true,
+  "avg_score": 0,
+  "evaluations": []
+}

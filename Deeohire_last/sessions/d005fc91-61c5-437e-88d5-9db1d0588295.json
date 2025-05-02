@@ -1,0 +1,52 @@
+{
+  "session_id": "d005fc91-61c5-437e-88d5-9db1d0588295",
+  "company": "Infosys",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": null
+    },
+    {
+      "id": 2,
+      "question": "Infosys is building a single-page application using Angular and TypeScript. The application requires a feature to display a chart with real-time data that updates every minute. How would you implement this feature using Angular and TypeScript, and what considerations would you keep in mind for handling large datasets and performance optimization?"
+    },
+    {
+      "id": 3,
+      "question": "How would you handle state management in a large-scale Angular application built using Infosys's EdgeVerve blockchain-based supply chain management platform, which requires real-time updates and synchronization across multiple components?"
+    },
+    {
+      "id": 4,
+      "question": "Infosys is developing a responsive web application for a banking client using HTML, CSS, and JavaScript. The application requires a layout that adapts to different screen sizes and devices. How would you implement a mobile-first approach using CSS media queries to ensure a responsive design?"
+    },
+    {
+      "id": 5,
+      "question": "Infosys is building a new mobile-first responsive design for a leading healthcare provider, and the client requires a highly responsive and adaptive interface. How would you implement a custom responsive grid system using CSS Grid, while ensuring that the solution is compatible with Infosys's existing design system and adheres to the client's brand guidelines?"
+    },
+    {
+      "id": 6,
+      "question": "Infosys is building a new web application for a banking client using React and Redux. The application requires a feature to display a real-time dashboard with updated stock prices. The dashboard should update every 5 seconds and display the top 10 stocks with the highest price changes. How would you implement this feature using React and Redux, and what performance optimizations would you consider?"
+    },
+    {
+      "id": 7,
+      "question": "Infosys is building a new web application for a leading financial institution, and the client requires a highly accessible and WCAG 2.1 compliant interface. How would you implement a custom React component that provides a live region for announcing dynamic updates to screen readers, while ensuring that the component is compatible with Infosys's existing AEM (Adobe Experience Manager) framework?"
+    },
+    {
+      "id": 8,
+      "question": "Infosys is building a new web application for a client in the financial services industry, which requires a high level of accessibility compliance. How would you ensure that the application's navigation menu, built using React and CSS, is accessible to users with screen readers and keyboard-only navigation? Consider the specific requirements of the Web Content Accessibility Guidelines (WCAG 2.1) and the client's branding guidelines."
+    },
+    {
+      "id": 9,
+      "question": "How would you implement accessibility features in a web application built using Infosys's Wingspan digital learning platform, which caters to a diverse range of users with disabilities?"
+    },
+    {
+      "id": 10,
+      "question": "Infosys is building a new web application for a financial services client that requires a highly accessible and responsive user interface. The application needs to support multiple languages and currencies, and must comply with the Web Content Accessibility Guidelines (WCAG 2.1). How would you approach implementing internationalization and localization (i18n and L10n) in a React-based application using the ICU (International Components for Unicode) library, and ensure that the application is accessible to users with disabilities?"
+    },
+    {
+      "id": 11,
+      "question": "Infosys is building a responsive web application using Bootstrap and JavaScript. The application requires a feature to display a modal dialog with a complex form that includes conditional logic and validation rules. How would you implement this feature using Bootstrap and JavaScript, and what accessibility considerations would you keep in mind?"
+    }
+  ]
+}

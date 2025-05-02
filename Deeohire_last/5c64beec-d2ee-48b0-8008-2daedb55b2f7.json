@@ -1,0 +1,45 @@
+{
+  "session_id": "5c64beec-d2ee-48b0-8008-2daedb55b2f7",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Suppose you're building a web application using Google Cloud App Engine that allows users to upload and share images. How would you optimize the image upload process to ensure efficient storage and retrieval, considering Google Cloud Storage's billing model?"
+    },
+    {
+      "id": 2,
+      "question": "Google's web applications often require authentication and authorization to ensure that users have access to the correct resources and features. How would you implement authentication and authorization using Google's OAuth 2.0 and OpenID Connect protocols, and what benefits would this approach provide over traditional username and password authentication?"
+    },
+    {
+      "id": 3,
+      "question": "Suppose you're building a new feature for Google Maps that allows users to share their favorite places with friends. How would you design the backend API to handle the sharing functionality, considering scalability and security?"
+    },
+    {
+      "id": 4,
+      "question": "Google's search results page uses a complex layout with multiple components, such as search filters, result cards, and ads. How would you approach implementing a responsive design for this page using CSS Grid, ensuring that the layout adapts seamlessly to different screen sizes and devices?"
+    },
+    {
+      "id": 5,
+      "question": "Google Maps is planning to introduce a new feature that allows users to share their current location with friends in real-time. The feature requires a scalable and efficient backend architecture to handle a high volume of location updates. Design a RESTful API endpoint to handle location updates from mobile devices, considering Google's existing infrastructure and technology stack."
+    },
+    {
+      "id": 6,
+      "question": "Design a scalable and secure authentication system for Google Drive using OAuth 2.0 and OpenID Connect. Assume you need to support authentication for both web and mobile clients. How would you handle token refresh, token revocation, and unauthorized access?"
+    },
+    {
+      "id": 7,
+      "question": "How would you optimize the frontend performance of a Google Search results page, considering the page's complex layout and dynamic content?"
+    },
+    {
+      "id": 8,
+      "question": "Suppose you're building a web application for Google Maps that allows users to search for nearby restaurants and filter the results based on cuisine type. How would you implement the filtering functionality on the client-side, and what Google-provided APIs or libraries would you use to achieve this?"
+    },
+    {
+      "id": 9,
+      "question": "Google's Maps API uses a combination of client-side and server-side geocoding to provide accurate location-based services. How would you implement a feature to auto-complete partial addresses using the Google Maps API, while handling cases where the user's input is ambiguous or incomplete, and ensuring a responsive user experience?"
+    },
+    {
+      "id": 10,
+      "question": "Suppose you're building a progressive web app (PWA) for Google Maps, using Google's Polymer library and the Maps JavaScript API. How would you optimize the app's performance, ensure offline support, and implement features like location sharing and real-time traffic updates?"
+    }
+  ]
+}

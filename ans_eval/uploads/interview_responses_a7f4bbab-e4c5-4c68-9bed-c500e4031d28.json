@@ -1,0 +1,86 @@
+{
+  "session_id": "a7f4bbab-e4c5-4c68-9bed-c500e4031d28",
+  "company": "Google",
+  "domain": "Python",
+  "difficulty": "Easy",
+  "completed_at": "2025-04-25T12:23:40.733Z",
+  "answers": [
+    {
+      "question_id": 1,
+      "question": "Implement a simple caching mechanism using Python's `functools` module to memoize the results of a function that fetches data from a Google Cloud Storage bucket. Assume the function takes a bucket name and a file path as input.",
+      "answer": "from functools import lru_cache\nfrom google.cloud import storage\n\n@lru_cache(maxsize=128)\ndef fetch_gcs_file(bucket_name: str, file_path: str) -> str:\n    client = storage.Client()\n    bucket = client.bucket(bucket_name)\n    blob = bucket.blob(file_path)\n    return blob.download_as_text()\nThis caches results for up to 128 unique (bucket_name, file_path) pairs.",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 2,
+      "question": "Google's Google Maps platform uses geocoding to convert addresses to latitude and longitude coordinates. Write a Python function that uses the `requests` library to make a GET request to the OpenCage Geocoder API and retrieve the coordinates for a given address.",
+      "answer": "import requests\n\ndef get_coordinates(address: str, api_key: str) -> tuple:\n    url = 'https://api.opencagedata.com/geocode/v1/json'\n    params = {'q': address, 'key': api_key}\n    response = requests.get(url, params=params)\n    data = response.json()\n    if data['results']:\n        coords = data['results'][0]['geometry']\n        return coords['lat'], coords['lng']\n    return None",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 3,
+      "question": "Google's search results page uses a combination of caching and pagination to efficiently display search results. Write a Python function that takes a list of search results and returns a paginated version of the results, with a maximum of 10 results per page.",
+      "answer": "def paginate_results(results: list, page: int, per_page: int = 10) -> list:\n    start = (page - 1) * per_page\n    end = start + per_page\n    return results[start:end]\nCall it with the list and desired page number, e.g. paginate_results(results, 2) returns results 11–20.",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 4,
+      "question": "Google's AdWords platform uses Python to process and analyze large datasets. Write a Python function that takes a list of dictionaries, where each dictionary represents an ad campaign, and returns the average cost-per-click (CPC) across all campaigns.",
+      "answer": "def average_cpc(campaigns: list) -> float:\n    total_cpc = sum(c['cpc'] for c in campaigns if 'cpc' in c)\n    count = sum(1 for c in campaigns if 'cpc' in c)\n    return total_cpc / count if count else 0.0",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 5,
+      "question": null,
+      "answer": "null",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 6,
+      "question": "Google's search algorithms rely on data structures like tries to efficiently store and query large amounts of data. Implement a basic trie data structure in Python to store a collection of strings. The trie should support insertion, search, and prefix matching.",
+      "answer": "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end = False\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word: str):\n        node = self.root\n        for ch in word:\n            node = node.children.setdefault(ch, TrieNode())\n        node.is_end = True\n\n    def search(self, word: str) -> bool:\n        node = self._find_node(word)\n        return node.is_end if node else False\n\n    def starts_with(self, prefix: str) -> bool:\n        return self._find_node(prefix) is not None\n\n    def _find_node(self, s: str) -> TrieNode:\n        node = self.root\n        for ch in s:\n            if ch not in node.children:\n                return None\n            node = node.children[ch]\n        return node",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 7,
+      "question": "Google's AdWords platform uses protobuf (Protocol Buffers) to serialize and deserialize data. Write a Python function that uses the `protobuf` library to encode a simple message containing a string and an integer.",
+      "answer": "syntax = \"proto3\";\n\nmessage AdMessage {\n  string ad_text = 1;\n  int32 clicks = 2;\n}",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 8,
+      "question": "Google's Maps platform relies heavily on geospatial data processing. Suppose you're tasked with writing a Python script to calculate the distance between two geographic points on the surface of the Earth using the Haversine formula. However, the script needs to handle a large volume of point coordinates and must be optimized for performance. How would you implement the script using Python's NumPy library and vectorized operations?",
+      "answer": "import numpy as np\n\ndef haversine_np(lat1, lon1, lat2, lon2):\n    R = 6371.0  # Earth radius in kilometers\n\n    lat1 = np.radians(lat1)\n    lon1 = np.radians(lon1)\n    lat2 = np.radians(lat2)\n    lon2 = np.radians(lon2)\n\n    dlat = lat2 - lat1\n    dlon = lon2 - lon1\n\n    a = np.sin(dlat / 2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2)**2\n    c = 2 * np.arcsin(np.sqrt(a))",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 9,
+      "question": "Google's data processing pipelines often involve processing large datasets in parallel using tools like Apache Beam. Implement a Python function to parallelize the processing of a list of items using the concurrent.futures module.",
+      "answer": "from concurrent.futures import ThreadPoolExecutor\n\ndef parallel_process(func, items, max_workers=5):\n    with ThreadPoolExecutor(max_workers=max_workers) as executor:\n        results = list(executor.map(func, items))\n    return results",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 10,
+      "question": "Google's core search algorithm relies heavily on graph processing. Implement a Python function to detect cycles in a directed graph using a Depth-First Search (DFS) approach. The graph is represented as an adjacency list, where each key is a node and its corresponding value is a list of neighboring nodes.",
+      "answer": "def has_cycle(graph):\n    visited = set()\n    rec_stack = set()\n\n    def dfs(node):\n        if node in rec_stack:\n            return True\n        if node in visited:\n            return False\n\n        visited.add(node)\n        rec_stack.add(node)\n        for neighbor in graph.get(node, []):\n            if dfs(neighbor):\n                return True\n        rec_stack.remove(node)\n        return False\n\n    return any(dfs(node) for node in graph)",
+      "domain": "Python",
+      "difficulty": "Easy"
+    },
+    {
+      "question_id": 11,
+      "question": "Google's Cloud Storage service provides a scalable and durable storage solution for large datasets. Suppose you're working on a Python project that involves processing large files stored in Cloud Storage using the `google-cloud-storage` library. However, the file processing involves complex business logic and error handling, which makes the code difficult to read and maintain. How would you refactor the code to improve its readability and maintainability, and what Python features or best practices would you use to achieve this?",
+      "answer": "def download_file(bucket_name, file_path):\n    client = storage.Client()\n    bucket = client.bucket(bucket_name)\n    blob = bucket.blob(file_path)\n    return blob.download_as_text()",
+      "domain": "Python",
+      "difficulty": "Easy"
+    }
+  ]
+}

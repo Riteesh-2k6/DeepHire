@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deephire Interview Chatbot</title>
+    <style>
+        body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #121212;
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.header {
+    background-color: #1a1a1a;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #333333;
+}
+
+.logo {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1F51A0; /* Lapis lazuli accent */
+}
+
+.header-info {
+    display: flex;
+    gap: 10px;
+}
+
+.info-pill {
+    background-color: #222222;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    color: #b0b0b0;
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 220px;
+    background-color: #1a1a1a;
+    padding: 16px;
+    border-right: 1px solid #333333;
+    overflow-y: auto;
+}
+
+.progress-container {
+    margin-bottom: 20px;
+}
+
+.progress-title {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: #b0b0b0;
+}
+
+.progress-bar-container {
+    background-color: #333333;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #1F51A0; /* Lapis lazuli */
+    transition: width 0.3s ease;
+}
+
+.interview-info {
+    margin-bottom: 20px;
+}
+
+.info-section {
+    margin-bottom: 12px;
+}
+
+.info-title {
+    font-size: 0.8rem;
+    color: #b0b0b0;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.chat-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chat-container {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.message {
+    margin-bottom: 12px;
+    max-width: 80%;
+}
+
+.assistant-message {
+    margin-right: auto;
+}
+
+.user-message {
+    margin-left: auto;
+    text-align: right;
+}
+
+.message-content {
+    padding: 12px 16px;
+    border-radius: 18px;
+    display: inline-block;
+    max-width: 100%;
+    text-align: left;
+}
+
+.assistant-content {
+    background-color: #222222;
+    border-bottom-left-radius: 4px;
+}
+
+.user-content {
+    background-color: #1F51A0; /* Lapis lazuli */
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.system-message {
+    text-align: center;
+    margin: 16px 0;
+    color: #888888;
+    font-size: 0.9rem;
+}
+
+.input-container {
+    padding: 14px 16px;
+    background-color: #1a1a1a;
+    border-top: 1px solid #333333;
+}
+
+.input-box {
+    display: flex;
+    background-color: #222222;
+    border-radius: 24px;
+    overflow: hidden;
+    padding: 4px;
+}
+
+#user-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    background-color: transparent;
+    color: #f0f0f0;
+    font-size: 1rem;
+    resize: none;
+    min-height: 20px;
+    max-height: 120px;
+    outline: none;
+}
+
+.send-btn {
+    background-color: #1F51A0; /* Lapis lazuli */
+    color: #ffffff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+    margin: 2px;
+}
+
+.send-btn:hover {
+    transform: scale(1.05);
+    background-color: #2660BD; /* Lighter lapis lazuli */
+}
+
+.send-btn:disabled {
+    background-color: #333333;
+    color: #666666;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+}
+
+.typing-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #1F51A0; /* Lapis lazuli */
+    margin-right: 2px;
+    animation: typingAnimation 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingAnimation {
+    0%, 100% {
+        transform: translateY(0);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.action-btn {
+    background-color: #222222;
+    color: #f0f0f0;
+    border: 1px solid #1F51A0; /* Lapis lazuli */
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background-color: #1F51A0; /* Lapis lazuli */
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.evaluation-container {
+    background-color: #222222;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    border-left: 3px solid #1F51A0; /* Lapis lazuli */
+}
+
+.eval-header {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #1F51A0; /* Lapis lazuli */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.eval-score {
+    background-color: #333333;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+}
+
+.eval-feedback {
+    line-height: 1.5;
+    color: #e0e0e0;
+}
+
+.pre-code {
+    background-color: #333333;
+    padding: 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    font-family: 'Courier New', monospace;
+    border-left: 2px solid #1F51A0; /* Lapis lazuli */
+    color: #e0e0e0;
+}
+
+@media screen and (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .header-info {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">TechInterview AI</div>
+        <div class="header-info">
+            <div class="info-pill" id="header-company">Company: <span id="company-value"></span></div>
+            <div class="info-pill" id="header-domain">Domain: <span id="domain-value"></span></div>
+            <div class="info-pill" id="header-difficulty">Difficulty: <span id="difficulty-value"></span></div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="progress-container">
+                <div class="progress-title">Interview Progress</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="interview-progress" style="width: 0%"></div>
+                </div>
+                <div class="progress-title" id="progress-text">Question 0 of 0</div>
+            </div>
+
+            <div class="interview-info">
+                <div class="info-section">
+                    <div class="info-title">Company</div>
+                    <div class="info-value" id="sidebar-company"></div>
+                </div>
+                <div class="info-section">
+                    <div class="info-title">Domain</div>
+                    <div class="info-value" id="sidebar-domain"></div>
+                </div>
+                <div class="info-section">
+                    <div class="info-title">Difficulty</div>
+                    <div class="info-value" id="sidebar-difficulty"></div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn" id="end-interview-btn">End Interview</button>
+            </div>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-container" id="chat-container">
+                <div class="message assistant-message">
+                    <div class="message-content assistant-content">
+                        Welcome to your technical interview practice session! I'll be your interviewer today. Let's get started with the first question.
+                    </div>
+                </div>
+                <div class="system-message">
+                    Preparing your first question...
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-box">
+                    <textarea id="user-input" placeholder="Type your answer here..." rows="1"></textarea>
+                    <button class="send-btn" id="send-btn" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+65// Initialize session data from Flask
+const sessionData = JSON.parse('{{ session_data|tojson|safe }}');
+
+// DOM Elements
+const chatContainer = document.getElementById('chat-container');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+const progressBar = document.getElementById('interview-progress');
+const progressText = document.getElementById('progress-text');
+const endInterviewBtn = document.getElementById('end-interview-btn');
+
+// Interview state
+let interviewState = {
+    currentQuestionIndex: 0,
+    questions: [],
+    answers: [],
+    isWaitingForAnswer: false,
+    totalQuestions: 0,
+    isFinished: false,
+    sessionInfo: {
+        session_id: "",
+        company: "",
+        domain: "",
+        difficulty: ""
+    }
+};
+
+// Initialize session data and start interview
+document.addEventListener('DOMContentLoaded', function() {
+    if (sessionData && sessionData.questions) {
+        processQuestions(sessionData);
+    }
+});
+
+// Initialize the interview details in UI
+function initializeUI() {
+    // Set values in header
+    document.getElementById('company-value').textContent = interviewState.sessionInfo.company || window.company || 'Example Corp';
+    document.getElementById('domain-value').textContent = interviewState.sessionInfo.domain || window.domain || 'Full Stack';
+    document.getElementById('difficulty-value').textContent = interviewState.sessionInfo.difficulty || window.difficulty || 'Medium';
+    
+    // Set values in sidebar
+    document.getElementById('sidebar-company').textContent = interviewState.sessionInfo.company || window.company || 'Example Corp';
+    document.getElementById('sidebar-domain').textContent = interviewState.sessionInfo.domain || window.domain || 'Full Stack';
+    document.getElementById('sidebar-difficulty').textContent = interviewState.sessionInfo.difficulty || window.difficulty || 'Medium';
+}
+
+// Process question data
+function processQuestions(data) {
+    // Extract session info
+    interviewState.sessionInfo = {
+        session_id: data.session_id || window.sessionId || generateSessionId(),
+        company: data.company || window.company || 'Example Corp',
+        domain: data.domain || window.domain || 'Full Stack',
+        difficulty: data.difficulty || window.difficulty || 'Medium'
+    };
+    
+    // Update UI with session info
+    initializeUI();
+    
+    // Process questions
+    interviewState.questions = data.questions || [];
+    interviewState.totalQuestions = interviewState.questions.length;
+    updateProgress();
+    
+    if (interviewState.totalQuestions > 0) {
+        showNextQuestion();
+    } else {
+        addSystemMessage('No questions available.');
+    }
+}
+
+// Display a message from the assistant
+function addAssistantMessage(text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message assistant-message';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content assistant-content';
+    contentDiv.innerHTML = text;
+    
+    messageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Display a message from the user
+function addUserMessage(text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message user-message';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content user-content';
+    contentDiv.textContent = text;
+    
+    messageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Display a system message
+function addSystemMessage(text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'system-message';
+    messageDiv.textContent = text;
+    
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Show typing indicator
+function showTypingIndicator() {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message assistant-message';
+    messageDiv.id = 'typing-indicator';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content assistant-content';
+    
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    
+    for (let i = 0; i < 3; i++) {
+        const dot = document.createElement('span');
+        dot.className = 'typing-dot';
+        typingDiv.appendChild(dot);
+    }
+    
+    contentDiv.appendChild(typingDiv);
+    messageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Remove typing indicator
+function removeTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+// Display the next question
+function showNextQuestion() {
+    if (interviewState.currentQuestionIndex < interviewState.totalQuestions) {
+        const question = interviewState.questions[interviewState.currentQuestionIndex];
+        
+        // Show typing effect
+        showTypingIndicator();
+        
+        // Simulate thinking time before showing question
+        setTimeout(() => {
+            removeTypingIndicator();
+            // Use question.question instead of question.text according to your JSON format
+            addAssistantMessage(`<strong>Question ${interviewState.currentQuestionIndex + 1}:</strong> ${question.question}`);
+            interviewState.isWaitingForAnswer = true;
+            sendBtn.disabled = false;
+        }, 1000);
+    } else {
+        finishInterview();
+    }
+}
+
+// Handle user submitting an answer
+async function submitAnswer() {
+    const answer = userInput.value.trim();
+    
+    if (!answer || !interviewState.isWaitingForAnswer) return;
+    
+    // Store the answer with question ID and text
+    const currentQuestion = interviewState.questions[interviewState.currentQuestionIndex];
+    const answerData = {
+        question_id: currentQuestion.id,
+        question: currentQuestion.question,
+        answer: answer,
+        domain: interviewState.sessionInfo.domain,
+        difficulty: interviewState.sessionInfo.difficulty
+    };
+    interviewState.answers.push(answerData);
+    
+    // Show the answer in chat
+    addUserMessage(answer);
+    
+    // Clear input and temporarily disable button
+    userInput.value = '';
+    userInput.style.height = 'auto';
+    sendBtn.disabled = true;
+    
+    // Send answer for evaluation
+    try {
+        const response = await fetch('/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(answerData)
+        });
+        
+        if (response.ok) {
+            const evaluation = await response.json();
+            // Display evaluation feedback
+            addEvaluationFeedback(evaluation);
+        } else {
+            console.error('Evaluation failed:', await response.text());
+        }
+    } catch (error) {
+        console.error('Error during evaluation:', error);
+    }
+    
+    // Move to next question
+    interviewState.currentQuestionIndex++;
+    interviewState.isWaitingForAnswer = false;
+    updateProgress();
+    
+    // Show acknowledgment before moving to next question
+    showTypingIndicator();
+    setTimeout(() => {
+        removeTypingIndicator();
+        setTimeout(showNextQuestion, 600);
+    }, 1000);
+}
+
+
+// Update progress bar and text
+function updateProgress() {
+    const progressPercentage = (interviewState.currentQuestionIndex / interviewState.totalQuestions) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
+    progressText.textContent = `Question ${interviewState.currentQuestionIndex} of ${interviewState.totalQuestions}`;
+}
+
+// Finish the interview and create JSON output
+function finishInterview() {
+    interviewState.isFinished = true;
+    addSystemMessage('Interview completed!');
+    
+    // Show final message
+    showTypingIndicator();
+    setTimeout(() => {
+        removeTypingIndicator();
+        addAssistantMessage(`
+            <strong>Interview Complete</strong><br><br>
+            Thank you for completing your technical interview session!<br>
+            You've answered all ${interviewState.totalQuestions} questions.<br><br>
+            Your answers have been recorded.<br><br>
+            <strong>Next Steps:</strong><br>
+            1. Download your responses using the button below<br>
+            2. Upload the downloaded JSON file to the Answer Evaluator for detailed feedback
+        `);
+        
+        // Create and display the final JSON
+        const outputJson = createOutputJSON();
+        
+        // Create container for buttons
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.gap = '10px';
+        buttonContainer.style.justifyContent = 'center';
+        buttonContainer.style.margin = '10px auto';
+        
+        // Add download button
+        const downloadBtn = document.createElement('button');
+        downloadBtn.className = 'action-btn';
+        downloadBtn.textContent = 'Download Responses';
+        downloadBtn.addEventListener('click', () => downloadJSON(outputJson));
+        
+        // Add answer evaluator button
+        const evaluatorBtn = document.createElement('button');
+        evaluatorBtn.className = 'action-btn';
+        evaluatorBtn.textContent = 'Go to Answer Evaluator';
+        evaluatorBtn.addEventListener('click', () => window.location.href = '/answer_evaluator');
+        
+        buttonContainer.appendChild(downloadBtn);
+        buttonContainer.appendChild(evaluatorBtn);
+        chatContainer.appendChild(buttonContainer);
+        
+    }, 1500);
+}
+
+// Display evaluation feedback in chat
+function addEvaluationFeedback(evaluation) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message assistant-message';
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content assistant-content evaluation-container';
+    
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'eval-header';
+    headerDiv.innerHTML = `
+        <span>Answer Evaluation</span>
+        <span class="eval-score">${evaluation.final_score.toFixed(1)}/10</span>
+    `;
+    
+    const feedbackDiv = document.createElement('div');
+    feedbackDiv.className = 'eval-feedback';
+    feedbackDiv.innerHTML = `
+        <p><strong>Technical Accuracy:</strong> ${evaluation.technical_accuracy.score}/10<br>
+        ${evaluation.technical_accuracy.justification}</p>
+        <p><strong>Problem Solving:</strong> ${evaluation.problem_solving.score}/10<br>
+        ${evaluation.problem_solving.justification}</p>
+        <p><strong>Completeness:</strong> ${evaluation.completeness.score}/10<br>
+        ${evaluation.completeness.justification}</p>
+        <p><strong>Optimization:</strong> ${evaluation.optimization.score}/10<br>
+        ${evaluation.optimization.justification}</p>
+        <p><strong>Feedback:</strong> ${evaluation.feedback}</p>
+    `;
+    
+    contentDiv.appendChild(headerDiv);
+    contentDiv.appendChild(feedbackDiv);
+    messageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Create the final JSON output
+function createOutputJSON() {
+    return {
+        session_id: interviewState.sessionInfo.session_id,
+        company: interviewState.sessionInfo.company,
+        domain: interviewState.sessionInfo.domain,
+        difficulty: interviewState.sessionInfo.difficulty,
+        completed_at: new Date().toISOString(),
+        answers: interviewState.answers
+    };
+}
+
+// Generate a session ID if none exists
+function generateSessionId() {
+    return 'session_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Download JSON as a file
+function downloadJSON(jsonData) {
+    const dataStr = JSON.stringify(jsonData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportName = `interview_responses_${interviewState.sessionInfo.session_id}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportName);
+    linkElement.click();
+}
+
+// Load questions from JSON file or string
+function loadQuestions(jsonData) {
+    // Accept either JSON object or string
+    if (typeof jsonData === 'string') {
+        try {
+            const parsedData = JSON.parse(jsonData);
+            processQuestions(parsedData);
+        } catch (error) {
+            console.error('Failed to parse JSON string:', error);
+            addSystemMessage('Error processing questions data.');
+        }
+    } else {
+        processQuestions(jsonData);
+    }
+}
+
+// Submit answer when Enter key is pressed (Shift+Enter for new line)
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (!sendBtn.disabled) {
+            submitAnswer();
+        }
+    }
+});
+
+// Auto-resize textarea as user types
+userInput.addEventListener('input', () => {
+    // Reset height to auto to get the correct scrollHeight
+    userInput.style.height = 'auto';
+    // Set height to scrollHeight with max height limit
+    userInput.style.height = (userInput.scrollHeight > 120 ? 120 : userInput.scrollHeight) + 'px';
+    
+    // Enable/disable send button based on input
+    sendBtn.disabled = userInput.value.trim() === '' || !interviewState.isWaitingForAnswer;
+});
+
+// Send button click handler
+sendBtn.addEventListener('click', submitAnswer);
+
+// End interview button handler
+endInterviewBtn.addEventListener('click', () => {
+    if (!interviewState.isFinished) {
+        addSystemMessage('Interview ended early.');
+        finishInterview();
+    }
+});
+
+// Initialize the app
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if we have direct JSON input
+    if (window.initialQuestions) {
+        loadQuestions(window.initialQuestions);
+    } else {
+        // Try to fetch questions from API or use your JSON input method
+        
+        // If you're sending JSON through server-side rendering:
+        if (window.interviewQuestions) {
+            loadQuestions(window.interviewQuestions);
+        } else {
+            // Add a system message indicating that questions need to be loaded
+            addSystemMessage('Waiting for questions to be loaded...');
+        }
+    }
+});
+
+// Export methods for external use
+window.InterviewApp = {
+    loadQuestions: loadQuestions,
+    getAnswers: () => interviewState.answers,
+    getOutputJSON: createOutputJSON,
+    downloadResponses: () => downloadJSON(createOutputJSON()),
+    endInterview: () => {
+        if (!interviewState.isFinished) {
+            addSystemMessage('Interview ended by system.');
+            finishInterview();
+        }
+    }
+};
+    </script>
+</body>
+</html>

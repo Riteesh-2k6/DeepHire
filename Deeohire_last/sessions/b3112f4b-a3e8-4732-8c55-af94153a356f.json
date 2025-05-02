@@ -1,0 +1,52 @@
+{
+  "session_id": "b3112f4b-a3e8-4732-8c55-af94153a356f",
+  "company": "Google",
+  "domain": "Front End",
+  "difficulty": "Medium",
+  "questions": [
+    {
+      "id": 1,
+      "question": "How would you implement accessibility features for users with disabilities in a Google Search results page, specifically for users who rely on screen readers?"
+    },
+    {
+      "id": 2,
+      "question": "How would you implement a responsive design for a Google AdSense ad unit that adapts to different screen sizes and devices, while ensuring that the ad remains clickable and accessible?"
+    },
+    {
+      "id": 3,
+      "question": "How would you approach implementing accessibility features for users with disabilities in a Google Web Search results page, specifically for users who rely on screen readers?"
+    },
+    {
+      "id": 4,
+      "question": null
+    },
+    {
+      "id": 5,
+      "question": "Google's Web Apps, such as Gmail and Google Drive, use the Closure Compiler to optimize and minify JavaScript code. How would you optimize the JavaScript code for a complex web application, like Google Maps, to achieve a significant reduction in file size and improvement in page load times?"
+    },
+    {
+      "id": 6,
+      "question": "How would you implement a responsive design for a Google AdSense ad unit on a web page, ensuring that the ad layout adapts to different screen sizes and devices?"
+    },
+    {
+      "id": 7,
+      "question": "How would you optimize the rendering of a large list of items in a Google Maps info window using JavaScript, considering the limitations of mobile devices?"
+    },
+    {
+      "id": 8,
+      "question": "You are working on a new feature for Google Ads that requires rendering a large number of ads on a single page. The ads need to be loaded dynamically, and the user should be able to scroll through the ads quickly and smoothly. How would you approach optimizing the loading and rendering of these ads to ensure fast and smooth performance?"
+    },
+    {
+      "id": 9,
+      "question": "Google's search results page uses a complex layout with multiple components, such as the knowledge graph, ads, and search results. How would you approach implementing a responsive design for this page, ensuring that it adapts to different screen sizes, devices, and orientations, while maintaining accessibility and performance?"
+    },
+    {
+      "id": 10,
+      "question": "How would you implement accessibility features for users with visual impairments on Google Search results pages, ensuring that screen readers and keyboard navigation work seamlessly with the page's dynamic content?"
+    },
+    {
+      "id": 11,
+      "question": "Google's Material Design guidelines emphasize the use of motion and animations to enhance the user experience. How would you implement a performant and accessible animation for a complex UI component, such as a carousel, using Web Animations API and modern CSS features?"
+    }
+  ]
+}

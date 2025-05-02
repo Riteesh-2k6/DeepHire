@@ -1,0 +1,52 @@
+{
+  "session_id": "365adeb9-d166-43c9-a449-3248caa8e8cc",
+  "company": "Google",
+  "domain": "Front End",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Google's Web Apps, such as Gmail and Google Drive, use the Closure Compiler to optimize and minify JavaScript code. How would you optimize the JavaScript code for a complex web application, like Google Maps, to achieve a significant reduction in file size and improvement in page load times?"
+    },
+    {
+      "id": 2,
+      "question": null
+    },
+    {
+      "id": 3,
+      "question": "How would you optimize the rendering of a large list of items in a Google Maps info window using JavaScript, considering the limitations of mobile devices?"
+    },
+    {
+      "id": 4,
+      "question": "Google's Material Design guidelines emphasize the importance of motion and animation in creating a engaging and responsive user experience. How would you implement a complex animation, such as a hero animation, in a Google Web App, like Google Photos, using modern Front End technologies and ensuring a smooth and performant animation on a wide range of devices?"
+    },
+    {
+      "id": 5,
+      "question": "Google's Material Design guidelines emphasize the use of motion and animations to enhance the user experience. How would you implement a performant and accessible animation for a complex UI component, such as a carousel, using Web Animations API and modern CSS features?"
+    },
+    {
+      "id": 6,
+      "question": "How would you optimize the performance of a Google AdWords landing page, considering the impact of ad blockers and the need to ensure a fast and seamless user experience?"
+    },
+    {
+      "id": 7,
+      "question": "You are working on a new feature for Google Maps that requires rendering a large number of markers on the map. The markers need to be interactive, and the user should be able to filter them by category. How would you optimize the rendering of these markers to ensure smooth performance and minimize DOM mutations?"
+    },
+    {
+      "id": 8,
+      "question": "How would you implement a responsive design for a Google AdSense ad unit that adapts to different screen sizes and devices, while ensuring that the ad remains clickable and accessible?"
+    },
+    {
+      "id": 9,
+      "question": "How would you optimize the performance of a Google AdSense ad slot on a webpage, considering factors like ad rendering, network latency, and user experience?"
+    },
+    {
+      "id": 10,
+      "question": "How would you optimize the rendering of a Google Maps component on a web page, considering the impact of JavaScript execution on the main thread?"
+    },
+    {
+      "id": 11,
+      "question": "How would you implement accessibility features for users with visual impairments on Google Search results pages, ensuring that screen readers and keyboard navigation work seamlessly with the page's dynamic content?"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "session_id": "test-session-1",
+  "company": "Test Company",
+  "domain": "Software Engineering",
+  "difficulty": "Medium",
+  "answers": [
+    {
+      "question": "What is the difference between a process and a thread?",
+      "answer": "A process is an independent program execution unit with its own memory space, while a thread is a lightweight unit within a process that shares the process's memory space. Processes are isolated from each other, but threads within the same process can share resources."
+    }
+  ]
+}

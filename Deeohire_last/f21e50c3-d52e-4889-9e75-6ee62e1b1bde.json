@@ -1,0 +1,45 @@
+{
+  "session_id": "f21e50c3-d52e-4889-9e75-6ee62e1b1bde",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Design a real-time analytics system for Google AdWords, which can process and analyze large volumes of ad click and conversion data in near real-time. The system needs to handle high throughput, ensure data accuracy, and provide low-latency insights to advertisers."
+    },
+    {
+      "id": 2,
+      "question": "You're building a media streaming service that stores video content in Google Cloud Storage and serves it to users through a Content Delivery Network (CDN). To improve performance and reduce latency, you need to optimize the content delivery process. How would you design and implement a caching strategy for the CDN, and what would be the advantages and disadvantages of your approach?"
+    },
+    {
+      "id": 3,
+      "question": "How would you optimize the frontend performance of a Google Search results page, considering the page's complex layout and dynamic content?"
+    },
+    {
+      "id": 4,
+      "question": "Google's advertising business relies heavily on accurate tracking and measurement of ad clicks and conversions. How would you design a backend API using Google Cloud Platform (GCP) services to track and store ad conversion data, and what considerations would you take into account to ensure data accuracy and scalability?"
+    },
+    {
+      "id": 5,
+      "question": "Suppose you're building a new feature for Google Maps that allows users to share their favorite places with friends. How would you design the backend API to handle the sharing functionality, considering scalability and security?"
+    },
+    {
+      "id": 6,
+      "question": "You're building a real-time analytics dashboard using Google App Engine and the Datastore. The dashboard displays metrics for millions of users, and you need to optimize the data retrieval and rendering process to ensure fast performance and low latency. How would you optimize the Datastore queries and data modeling to reduce latency and improve performance, and what would be the trade-offs of your approach?"
+    },
+    {
+      "id": 7,
+      "question": "Design a scalable and secure authentication system for Google Drive using OAuth 2.0 and OpenID Connect. Assume you need to support authentication for both web and mobile clients. How would you handle token refresh, token revocation, and unauthorized access?"
+    },
+    {
+      "id": 8,
+      "question": "Google's web applications often require authentication and authorization to ensure that users have access to the correct resources and features. How would you implement authentication and authorization using Google's OAuth 2.0 and OpenID Connect protocols, and what benefits would this approach provide over traditional username and password authentication?"
+    },
+    {
+      "id": 9,
+      "question": "Suppose you're building a progressive web app (PWA) for Google Maps, using Google's Polymer library and the Maps JavaScript API. How would you optimize the app's performance, ensure offline support, and implement features like location sharing and real-time traffic updates?"
+    },
+    {
+      "id": 10,
+      "question": "Suppose you're building a web application for Google Maps that allows users to search for nearby restaurants and filter the results based on cuisine type. How would you implement the filtering functionality on the client-side, and what Google-provided APIs or libraries would you use to achieve this?"
+    }
+  ]
+}

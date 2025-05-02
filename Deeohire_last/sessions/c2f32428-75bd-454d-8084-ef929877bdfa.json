@@ -1,0 +1,52 @@
+{
+  "session_id": "c2f32428-75bd-454d-8084-ef929877bdfa",
+  "company": "Google",
+  "domain": "Full Stack",
+  "difficulty": "Easy",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Design a scalable and secure authentication system for Google Drive using OAuth 2.0 and OpenID Connect. Assume you need to support authentication for both web and mobile clients. How would you handle token refresh, token revocation, and unauthorized access?"
+    },
+    {
+      "id": 2,
+      "question": "You're building a media streaming service that stores video content in Google Cloud Storage and serves it to users through a Content Delivery Network (CDN). To improve performance and reduce latency, you need to optimize the content delivery process. How would you design and implement a caching strategy for the CDN, and what would be the advantages and disadvantages of your approach?"
+    },
+    {
+      "id": 3,
+      "question": "Google Drive is planning to introduce a new feature that allows users to collaborate on documents in real-time. The feature requires a full-stack implementation to handle collaborative editing, conflict resolution, and document storage. Design a full-stack solution using Google's technology stack, considering scalability, performance, and security."
+    },
+    {
+      "id": 4,
+      "question": "Google's AdSense platform uses a complex system of real-time bidding and auctioning to display ads on publisher websites. Design a scalable and fault-tolerant system to handle ad requests and responses, using Google Cloud's Pub/Sub messaging service and Cloud SQL. How would you handle cases where multiple bidders respond with different ad creatives for the same ad slot?"
+    },
+    {
+      "id": 5,
+      "question": "Google Maps is planning to introduce a new feature that allows users to share their current location with friends in real-time. The feature requires a scalable and efficient backend architecture to handle a high volume of location updates. Design a RESTful API endpoint to handle location updates from mobile devices, considering Google's existing infrastructure and technology stack."
+    },
+    {
+      "id": 6,
+      "question": "You're tasked with building a machine learning-powered feature for Google Search that suggests personalized search filters based on a user's search history and preferences. How would you design the frontend and backend architecture to integrate with Google's existing search infrastructure, and ensure the feature is scalable, secure, and compliant with Google's privacy policies?"
+    },
+    {
+      "id": 7,
+      "question": "Suppose you're building a new feature for Google Drive that allows users to collaborate on documents in real-time. How would you design the real-time collaboration system, considering latency and data consistency?"
+    },
+    {
+      "id": 8,
+      "question": null
+    },
+    {
+      "id": 9,
+      "question": "Design a real-time analytics system for Google AdWords, which can process and analyze large volumes of ad click and conversion data in near real-time. The system needs to handle high throughput, ensure data accuracy, and provide low-latency insights to advertisers."
+    },
+    {
+      "id": 10,
+      "question": "You are tasked with optimizing the performance of a Google Maps API-based web application that serves millions of users. The application uses a combination of client-side rendering and server-side rendering to render maps and provide location-based services. How would you approach performance optimization, and what specific techniques would you use to reduce latency and improve user experience?"
+    },
+    {
+      "id": 11,
+      "question": "Suppose you're building a web application for Google Maps that allows users to search for nearby restaurants and filter the results based on cuisine type. How would you implement the filtering functionality on the client-side, and what Google-provided APIs or libraries would you use to achieve this?"
+    }
+  ]
+}

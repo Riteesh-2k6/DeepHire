@@ -1,0 +1,45 @@
+{
+  "session_id": "84a288e2-5ca5-4751-99eb-66c61fa11832",
+  "questions": [
+    {
+      "id": 1,
+      "question": "How would you implement a responsive design for a Google AdSense ad unit that adapts to different screen sizes and devices, while ensuring that the ad remains clickable and accessible?"
+    },
+    {
+      "id": 2,
+      "question": "Suppose you're working on the Google Search results page, and you need to implement a feature that displays a carousel of related searches above the search results. The carousel should be accessible, responsive, and performant. How would you approach this task, and what specific techniques would you use to ensure the carousel is optimized for web vitals?"
+    },
+    {
+      "id": 3,
+      "question": "Google's Material Design guidelines emphasize the importance of motion and animation in creating engaging user experiences. However, excessive animation can lead to performance issues and accessibility problems. How would you approach implementing a performant and accessible animation system for a Google web application, using the Web Animations API and modern CSS features?"
+    },
+    {
+      "id": 4,
+      "question": "Google's AdSense platform relies heavily on JavaScript to render ads on publisher websites. However, some publishers may have strict Content Security Policy (CSP) restrictions in place, which can limit the execution of JavaScript code. How would you approach implementing a CSP-compliant ad rendering solution that balances security with ad rendering performance?"
+    },
+    {
+      "id": 5,
+      "question": "How would you optimize the rendering of a large dataset in a Google Maps JavaScript API application, considering the impact on user experience and performance?"
+    },
+    {
+      "id": 6,
+      "question": "How would you optimize the rendering of a large list of items in a Google Maps info window using JavaScript, considering the limitations of mobile devices?"
+    },
+    {
+      "id": 7,
+      "question": "How would you implement accessibility features for users with color vision deficiency on a Google Search results page?"
+    },
+    {
+      "id": 8,
+      "question": "How would you optimize the rendering of Google Maps' Street View panorama images on a low-end mobile device, considering the limitations of mobile hardware and the need to maintain a smooth user experience?"
+    },
+    {
+      "id": 9,
+      "question": "How would you implement a responsive design for a Google AdSense ad unit on a web page, ensuring that the ad layout adapts to different screen sizes and devices?"
+    },
+    {
+      "id": 10,
+      "question": "You are working on a new feature for Google Search that requires rendering a complex chart with interactive elements. The chart needs to be accessible on a wide range of devices, including mobile and desktop. How would you approach making this chart accessible and responsive?"
+    }
+  ]
+}
