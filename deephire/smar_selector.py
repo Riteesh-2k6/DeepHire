@@ -1,7 +1,6 @@
 import sqlite3
 import random
 import json
-import requests
 company_dict = {
     "Google": 1,
     "Meta": 2,
@@ -25,18 +24,6 @@ difficulty_dict = {
     "Medium": 2,
     "Hard": 3
 }
-def fetch_question_from_groq():
-    # Replace with actual Groq API call
-    headers = {
-        "Authorization": "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",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "prompt": "Give me one good technical interview question.",
-        "model": "groq-model-id"
-    }
-    response = requests.post("https://api.groq.com/v1/chat/completions", headers=headers, json=data)
-
 def smart_question_selector(input_json):
     session_id = input_json["session_id"]
     preferences = input_json["preferences"]
@@ -64,28 +51,8 @@ def smart_question_selector(input_json):
         ORDER BY RANDOM() LIMIT ?
     """, (company, domain, difficulty, 10 - x))
     secondary_questions = [row[0] for row in cursor.fetchall()]
-    all_questions = primary_questions + secondary_questions
-    random.shuffle(all_questions)
-
-    # Create result dictionary
-    result = {
-        "session_id": session_id,
-        "questions": [{"id": i+1, "question": q} for i, q in enumerate(all_questions)]
-    }
-
-    # Write result to {session_id}.json
-    output_file = f"{session_id}.json"
-    with open(output_file, 'w') as f:
-        json.dump(result, f, indent=2)
-
     conn.close()
-    print(f"Questions saved to {output_file}")
-
-    # Step 4: Fetch question from Groq
-    groq_question = fetch_question_from_groq()
-
-    # Combine and shuffle
-    all_questions = primary_questions + secondary_questions + [groq_question]
+    all_questions = primary_questions + secondary_questions
     random.shuffle(all_questions)
 
     # Create result dictionary
@@ -97,11 +64,9 @@ def smart_question_selector(input_json):
         "questions": [{"id": i+1, "question": q} for i, q in enumerate(all_questions)]
     }
 
-    # Write result to {session_id}.json
+    # Write result to sessions/{session_id}.json
     output_file = f"sessions/{session_id}.json"
     with open(output_file, 'w') as f:
         json.dump(result, f, indent=2)
-
-    conn.close()
     print(f"Questions saved to {output_file}")
 

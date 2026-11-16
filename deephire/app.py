@@ -10,6 +10,11 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+os.makedirs('uploads', exist_ok=True)
+os.makedirs('sessions', exist_ok=True)
+evaluator = AnswerEvaluator()
+
 @app.route('/')
 def index():
    return render_template('index.html')
@@ -141,6 +146,12 @@ def evaluate():
 
         if not session_json:
             return "Invalid or missing JSON data", 400
+
+        # One answer from the chat page: score it and return the rubric as JSON
+        if "answer" in session_json and "question" in session_json:
+            return jsonify(evaluator.evaluate_answer(
+                session_json["question"], session_json["answer"],
+                session_json.get("domain", ""), session_json.get("difficulty", "")))
 
         # Save to a temporary file
         session_id = session_json.get("session_id", "latest")
