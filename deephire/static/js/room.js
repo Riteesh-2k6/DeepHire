@@ -1,8 +1,9 @@
 import { createTracker, baseline, isFacing } from './face.js';
-import { speak, stopSpeaking, micMeter, startRecording } from './media.js';
+import { speak, stopSpeaking, micMeter, startRecording, voiceLevel, prefetchSpeech } from './media.js';
 import { saveTake } from './videos.js';
 
 const session = JSON.parse(document.getElementById('session-data').textContent);
+const WRAP_UP = JSON.parse(document.getElementById('wrap-up').textContent);   // the interviewer's cut-in lines
 const $ = id => document.getElementById(id);
 const room = $('room'), cam = $('cam');
 const total = session.answers.length;
@@ -42,7 +43,11 @@ function enable(stepId, buttonId) { $(stepId).removeAttribute('aria-disabled'); 
 function animate() {
   const level = meter ? meter.level() : 0;
   let target;
-  if (mode === 'speaking') { kick *= 0.9; target = 0.25 + kick * 0.55; }   // the interviewer's voice
+  if (mode === 'speaking' || mode === 'interrupting') {                     // the interviewer's voice
+    kick *= 0.9;
+    const v = voiceLevel();
+    target = v ? Math.min(1, 0.15 + v * 5) : 0.25 + kick * 0.55;
+  }
   else target = Math.min(1, Math.max(0, (level - noise) * 9));              // your voice
   needle += (target - needle) * 0.18;                                        // roughly VU ballistics
   $('needle').style.transform = `rotate(${-62 + needle * 124}deg)`;
@@ -218,7 +223,10 @@ function showQuestion(text, hint) {
   $('live').hidden = false;
   $('take-time').textContent = `0:00 / ${fmt(MAX_ANSWER_S)}`;
   $('question').textContent = text;
+  $('question').classList.toggle('long', text.split(' ').length > 45);
   $('question-hint').textContent = hint;
+  $('live-caption').hidden = true;
+  $('live-caption').textContent = '';
   showError('');
 }
 
@@ -243,6 +251,7 @@ function askQuestion(i) {
   part = 'main';
   const q = session.answers[i].question;
   $('take-no').textContent = `Question ${i + 1} of ${total}`;
+  if (i + 1 < total) prefetchSpeech(session.answers[i + 1].question);   // voiced while you answer this one
   showQuestion(q, /\b(write|implement|code)\b|function/i.test(q)
     ? 'Coding question: talk through your approach — the data structures, the steps, and the complexity.' : '');
   say(q, 'The question is on screen too.');
@@ -255,7 +264,31 @@ function askFollowUp(q) {
   say(q, 'A follow-up about your answer.');
 }
 
-function beginAnswer() {
+let live = null, liveChain = Promise.resolve(), liveOk = false;
+
+// Each 1.5 s chunk goes to the local server in order; the reply carries the caption so far and
+// whether the answer is running long or going in circles.
+function sendChunk(pcm, seq, i, p) {
+  liveChain = liveChain.then(async () => {
+    try {
+      const r = await fetch(`/api/stream/${session.session_id}/${i}/${p}?seq=${seq}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: pcm.buffer,
+      });
+      if (!r.ok) throw new Error(r.status);
+      const data = await r.json();
+      if (mode !== 'listening' || index !== i || part !== p) return;
+      if (data.text) {
+        $('live-caption').hidden = false;
+        $('live-caption').textContent = data.text.length > 160 ? `…${data.text.slice(-160)}` : data.text;
+      }
+      if (data.ramble && session.interruptions) interrupt(data.ramble);
+    } catch {
+      liveOk = false;   // the full recording is transcribed instead
+    }
+  });
+}
+
+async function beginAnswer() {
   stopSpeaking();
   mode = 'listening';
   counts = { samples: 0, face: 0, facing: 0 };
@@ -265,16 +298,59 @@ function beginAnswer() {
   $('dial-text').textContent = 'Your mic';
   setStatus('Your answer', 'Recording to this browser. Pausing to think is fine.');
   controls({ primary: 'Done answering', skip: true });
+  const i = index, p = part;
+  liveChain = Promise.resolve();
+  liveOk = true;
+  try {
+    live = await meter.liveChunks((pcm, seq) => sendChunk(pcm, seq, i, p));
+  } catch (err) {
+    console.warn('live transcription unavailable', err);
+    live = null;
+    liveOk = false;
+  }
+}
+
+// The interviewer cuts in: speak the wrap-up line straight away while the answer is saved.
+async function interrupt(reason) {
+  if (mode !== 'listening') return;
+  const wasFollowUp = part === 'follow_up';
+  const line = wasFollowUp ? "Thanks, that's enough on this one. Let's move on." : WRAP_UP[reason];
+  const saving = submitTake(reason);                   // stops recording; runs while the interviewer talks
+  mode = 'interrupting';
+  setStatus('Interviewer', reason === 'long' ? 'Cutting in: the answer is running long.' : 'Cutting in: the answer is going in circles.');
+  controls({ primary: null, skip: false });
+  await speak(line, () => { kick = 1; });
+  const data = await saving;
+  if (!data) return;
+  if (wasFollowUp) return afterQuestion();
+  part = 'follow_up';
+  $('take-no').textContent = `Question ${index + 1} of ${total} · Follow-up`;
+  showQuestion(line, `You were asked: ${session.answers[index].question}`);
+  beginAnswer();
 }
 
 async function finishAnswer(thenEnd = false) {
   if (mode !== 'listening') return;
+  const thinking = part === 'main' && session.follow_ups && !thenEnd;
+  const data = await submitTake(null, thinking);
+  if (!data) return;
+  if (thenEnd) return finish();
+  if (part === 'main' && data.follow_up) return askFollowUp(data.follow_up.question);
+  afterQuestion();
+}
+
+// Stops recording, saves the replay locally, and posts the take. Returns the server's reply, or null
+// after putting the room into its "answer again" state.
+async function submitTake(interrupted, thinking = false) {
   mode = 'saving';
   $('dial-text').textContent = 'Talkback';
-  const thinking = part === 'main' && session.follow_ups && !thenEnd;
-  setStatus(thinking ? 'Thinking' : 'Saving take',
-    thinking ? 'Transcribing. A follow-up may come next.' : 'Transcribing on this computer…');
-  controls({ primary: 'Done answering', skip: true, busy: true });
+  if (!interrupted) {
+    setStatus(thinking ? 'Thinking' : 'Saving take',
+      thinking ? 'Transcribing. A follow-up may come next.' : 'Transcribing on this computer…');
+    controls({ primary: 'Done answering', skip: true, busy: true });
+  }
+  live?.stop();                                        // sends the last partial chunk
+  live = null;
   let video, voice, duration;
   try {
     ({ video, voice, duration } = await recording.stop());
@@ -283,7 +359,7 @@ async function finishAnswer(thenEnd = false) {
     mode = 'error';
     setStatus('That take was not saved', 'The recorder stopped unexpectedly. You can answer again or move on.');
     controls({ primary: 'Answer again', skip: true });
-    return;
+    return null;
   } finally {
     recording = null;
   }
@@ -297,7 +373,10 @@ async function finishAnswer(thenEnd = false) {
   form.append('part', part);
   form.append('duration', duration.toFixed(2));
   form.append('face', JSON.stringify(base ? counts : { samples: 0 }));
-  form.append('audio', voice, 'answer.webm');
+  form.append('audio', voice, 'answer.webm');          // a fallback if live transcription missed anything
+  await liveChain;                                     // every chunk is on the server first
+  form.append('streamed', liveOk ? '1' : '0');
+  if (interrupted) form.append('interrupted', interrupted);
   let data;
   try {
     const r = await fetch('/api/answer', { method: 'POST', body: form, signal: AbortSignal.timeout(180000) });
@@ -308,12 +387,10 @@ async function finishAnswer(thenEnd = false) {
     setStatus('That take was not saved', 'You can answer again or move on.');
     showError(`${err.name === 'TimeoutError' ? 'The server took too long.' : err.message} Is the DeepHire server still running?`);
     controls({ primary: 'Answer again', skip: true });
-    return;
+    return null;
   }
   takes[index] = { ...takes[index], [part]: data.delivery };
-  if (thenEnd) return finish();
-  if (part === 'main' && data.follow_up) return askFollowUp(data.follow_up.question);
-  afterQuestion();
+  return data;
 }
 
 function afterQuestion() { session.mode === 'practice' && takes[index] ? quickTake(index) : next(); }
@@ -369,12 +446,20 @@ async function pollGrade(i) {
     try {
       const data = await (await fetch(`/api/report/${session.session_id}`)).json();
       const a = data.answers[i];
-      if (a.status === 'graded') {
+      const f = a.follow_up;
+      const followDone = !f || !f.transcript || ['graded', 'error'].includes(f.status);
+      if (a.status === 'graded' && followDone) {
         const facts = el('dl', 'delivery');
         const d = el('div'), dd = el('dd', '', a.grade.final_score.toFixed(1));
-        dd.append(el('small', '', ' / 10, whole exchange'));
+        dd.append(el('small', '', ' / 10'));
         d.append(el('dt', 'legend', 'Content'), dd);
         facts.append(d);
+        if (f?.grade?.score != null) {
+          const fd = el('div'), fdd = el('dd', '', f.grade.score.toFixed(1));
+          fdd.append(el('small', '', ' / 10'));
+          fd.append(el('dt', 'legend', 'Follow-up'), fdd);
+          facts.append(fd);
+        }
         const fb = el('p', 'feedback');
         fb.append(el('strong', '', 'What to change: '), a.grade.feedback || '');
         box.replaceChildren(facts, fb);
@@ -393,7 +478,7 @@ $('done').addEventListener('click', () => {
 });
 
 $('skip').addEventListener('click', async () => {
-  if (mode === 'listening') { mode = 'skipping'; await recording.stop(); recording = null; }
+  if (mode === 'listening') { mode = 'skipping'; live?.stop(); live = null; await recording.stop(); recording = null; }
   stopSpeaking();
   if (part === 'follow_up') {
     await fetch(`/api/skip-follow-up/${session.session_id}/${index}`, { method: 'POST' }).catch(() => {});

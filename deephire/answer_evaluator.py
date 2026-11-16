@@ -83,15 +83,11 @@ def chat_json(messages, model=LLM_MODEL, max_tokens=2000, timeout=900, post=requ
     return json.loads(content[start:end + 1] if 0 <= start < end else content)
 
 
-def grade(question, transcript, domain="", difficulty="", follow_up=None, post=requests.post):
-    """Grade one question's exchange: the answer, plus the follow-up answer when there is one."""
+def grade(question, transcript, domain="", difficulty="", post=requests.post):
+    """Grade the main answer. Runs the moment the answer ends, while the follow-up is being written."""
     if not transcript.strip():
         return {"error": "No speech was picked up for this answer."}
     user = f"Question: {question}\n\nTranscript of the spoken answer:\n{transcript}"
-    if follow_up and (follow_up.get("transcript") or "").strip():
-        user += (f"\n\nThe interviewer then asked this follow-up: {follow_up['question']}\n\n"
-                 f"Transcript of the spoken follow-up answer:\n{follow_up['transcript']}\n\n"
-                 "Grade the whole exchange: credit points made in either answer.")
     messages = [{"role": "system", "content": SYSTEM_PROMPT.format(domain=domain or "software", difficulty=difficulty or "medium")},
                 {"role": "user", "content": user}]
     try:
@@ -101,6 +97,33 @@ def grade(question, transcript, domain="", difficulty="", follow_up=None, post=r
     except ValueError:
         return {"error": "The grading model returned something that wasn't the expected JSON."}
     return with_final_score(result)
+
+
+FOLLOW_UP_GRADE_PROMPT = """You are a senior {domain} interviewer. You asked the candidate a follow-up question
+about their answer. You are reading automatic transcripts: ignore filler words and slips.
+
+Score from 0 to 10 how well the follow-up answer addresses the follow-up question, given the original
+question and their first answer. Grade only what they actually said. If they did not address the
+follow-up at all, score 0 to 2. Write one sentence of justification to the candidate as "you".
+
+Reply with JSON only: {{"score": 0, "justification": "..."}}"""
+
+
+def grade_follow_up(question, transcript, follow_q, follow_transcript, domain="", post=requests.post):
+    """A short, separate grade for the follow-up answer; the main rubric score stays as it was."""
+    if not follow_transcript.strip():
+        return {"error": "No speech was picked up for the follow-up."}
+    messages = [{"role": "system", "content": FOLLOW_UP_GRADE_PROMPT.format(domain=domain or "software")},
+                {"role": "user", "content": f"Original question: {question}\n\nTheir first answer:\n{transcript}\n\n"
+                                            f"Your follow-up: {follow_q}\n\nTheir follow-up answer:\n{follow_transcript}"}]
+    try:
+        result = chat_json(messages, max_tokens=600, post=post)
+        score = max(0.0, min(10.0, float(result.get("score", 0))))
+    except requests.RequestException as e:
+        return {"error": f"The grading model at {LLM_BASE_URL} didn't answer ({type(e).__name__})."}
+    except (ValueError, TypeError, AttributeError):
+        return {"error": "The grading model returned something that wasn't the expected JSON."}
+    return {"score": score, "justification": str(result.get("justification", ""))}
 
 
 # A socket timeout only fires when no bytes arrive; a server that trickles bytes (say, while a model

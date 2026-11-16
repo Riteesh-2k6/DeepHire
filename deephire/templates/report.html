@@ -45,7 +45,8 @@
     <h2>How these numbers are made</h2>
     <ul>
       <li><b>Content</b> is graded by a language model running on this computer, against a rubric: technical accuracy 40%, problem solving 30%, completeness 20%, optimization 10%. The weighted score is calculated, not written by the model. These scores have not been checked against human interviewers.</li>
-      <li><b>Follow-up questions</b> are written by the same local model from what you said, and the content score covers the whole exchange: your answer plus your follow-up answer.</li>
+      <li><b>Follow-up questions</b> are written by the same local model from what you said. Your main answer is graded the moment it ends; the follow-up answer gets its own short score.</li>
+      <li><b>Interruptions</b> happen when an answer passes two minutes of speaking (one for a follow-up) or starts repeating itself: a third or more of your recent three-word phrases were already said earlier. Both come from your words and timing, never your face.</li>
       <li><b>Pace, pauses and fillers</b> come from word timings in a transcript made on this computer (Whisper). Speech recognition tidies up some "um"s and "uh"s, so the filler count is a lower bound.</li>
       <li><b>On camera</b> is the share of time your head and eyes pointed where they did during calibration. Glasses, low light and a camera far to one side make it less accurate.</li>
       <li>The guide ranges (120–160 words a minute, under 3 fillers a minute, on camera at least 60% of the time) are rules of thumb, not grades. DeepHire never infers emotions or "confidence" from your face.</li>

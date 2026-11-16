@@ -151,7 +151,8 @@ function deliveryList(a, data) {
     item('Pace', d.wpm, d.wpm ? `wpm (guide ${r.wpm[0]}–${r.wpm[1]})` : has ? 'too short to measure' : '', inRange(d.wpm, r.wpm)),
     item('Pauses', has ? d.pause_count : null, d.pause_count ? `longest ${d.longest_pause_s} s` : ''),
     item('Fillers', has ? d.filler_count : null, d.fillers_per_min != null ? `${d.fillers_per_min}/min` : ''),
-    item('On camera', d.camera_pct != null ? `${d.camera_pct}%` : null, d.face_pct != null ? `face in frame ${d.face_pct}%` : has ? 'no camera data' : '', inRange(d.camera_pct, r.camera_pct)));
+    item('On camera', d.camera_pct != null ? `${d.camera_pct}%` : null, d.face_pct != null ? `face in frame ${d.face_pct}%` : has ? 'no camera data' : '', inRange(d.camera_pct, r.camera_pct)),
+    a.interrupted ? item('Interviewer cut in', a.interrupted === 'long' ? 'Running long' : 'Repeating', `at ${fmt(d.duration_s)}`) : null);
 }
 
 const takeEls = new Map();
@@ -172,7 +173,7 @@ function take(a, i, data) {
   el.querySelector('.slot-transcript').replaceChildren(a.delivery ? transcript(a, data.pause_s) : h('p', { class: 'transcript-note' }, 'This question was skipped.'));
   el.querySelector('.slot-delivery').replaceChildren(deliveryList(a, data));
   el.querySelector('.slot-grade').replaceChildren(
-    ...(a.follow_up?.delivery ? [h('span', { class: 'legend' }, 'Content, whole exchange')] : []),
+    ...(a.follow_up?.delivery ? [h('span', { class: 'legend' }, 'Content, main answer')] : []),
     ...[grading(a, i, data)].flat().filter(Boolean));
   return el;
 }
@@ -190,6 +191,13 @@ function followUpBlock(a, i, data) {
   }
   const slot = h('div', { class: 'replay' });
   block.append(h('div', { class: 'take-grid' }, slot, transcript(f, data.pause_s)), deliveryList(f, data));
+  const g = f.grade;
+  block.append(g?.score != null
+    ? h('div', { class: 'score-row side' },
+        h('span', { class: 'legend' }, 'Follow-up answer'), bars(g.score), h('span', { class: 'num' }, g.score),
+        h('span', { class: 'why' }, g.justification.replace(/^./, c => c.toUpperCase())))
+    : f.status === 'grading' ? h('p', { class: 'take-state' }, lamp('grading'), 'Grading the follow-up answer…')
+    : g?.error ? h('p', { class: 'take-error' }, g.error) : null);
   replay(slot, `${i}f`, `deephire-take-${i + 1}-follow-up.webm`);
   return block;
 }

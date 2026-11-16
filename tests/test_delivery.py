@@ -45,3 +45,11 @@ def test_summary_weights_by_speaking_time_and_frames():
     assert s["content_score"] == 8.0            # the failed grade is left out, not counted as 0
     assert s["wpm"] == 120 and s["pause_count"] == 2
     assert s["camera_pct"] == 25                # 10 of 40 frames, not the mean of 100% and 0%
+
+
+def test_whisper_hallucinations_are_dropped():
+    from speech import keep_segment
+    assert not keep_segment(" Thanks for watching.", 0.1, -0.3)        # stock phrase as a whole segment
+    assert not keep_segment(" So I would use a heap.", 0.8, -1.4)      # probably silence and unsure
+    assert keep_segment(" So I would use a heap.", 0.1, -0.3)
+    assert keep_segment(" Thanks for the question, I'd start with a heap.", 0.1, -0.3)  # real speech

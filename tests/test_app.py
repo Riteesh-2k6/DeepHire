@@ -50,16 +50,19 @@ def client(tmp_path, monkeypatch):
     words = [{"word": "Um,", "start": 0.5, "end": 0.8}, {"word": "use", "start": 1.0, "end": 1.2},
              {"word": "a", "start": 1.2, "end": 1.3}, {"word": "heap.", "start": 6.0, "end": 6.5}]
     monkeypatch.setattr(speech, "transcribe", lambda audio: ("Um, use a heap.", words))
-    graded_with = []
+    graded_follow_ups = []
 
-    def fake_grade(*a, follow_up=None):
-        graded_with.append(follow_up)
-        return answer_evaluator.with_final_score(json.loads(json.dumps(GRADE)))
-    monkeypatch.setattr(answer_evaluator, "grade", fake_grade)
+    def fake_follow_up_grade(question, transcript, follow_q, follow_transcript, domain=""):
+        graded_follow_ups.append((follow_q, follow_transcript))
+        return {"score": 6.0, "justification": "You named the trade-off."}
+    monkeypatch.setattr(answer_evaluator, "grade", lambda *a: answer_evaluator.with_final_score(json.loads(json.dumps(GRADE))))
+    monkeypatch.setattr(answer_evaluator, "grade_follow_up", fake_follow_up_grade)
     monkeypatch.setattr(answer_evaluator, "follow_up", lambda *a: None)  # tests that want one override this
+    monkeypatch.setattr(app_module, "tts_prefetch", lambda text, lane="now": None)  # no voice model in tests
     c = app_module.app.test_client()
-    c.graded_with = graded_with
-    return c
+    c.graded_follow_ups = graded_follow_ups
+    yield c
+    drain()  # no grading job may outlive its test's stubs
 
 
 def start(client, **overrides):
@@ -113,7 +116,7 @@ def drain():
     app_module.grader.submit(lambda: None).result()
 
 
-def test_follow_up_is_asked_then_the_exchange_is_graded(client, monkeypatch):
+def test_main_answer_is_graded_at_once_and_the_follow_up_separately(client, monkeypatch):
     monkeypatch.setattr(answer_evaluator, "follow_up", lambda *a: {"question": "Why a heap?", "probes": "trade-off"})
     sid = start(client, mode="practice").get_json()["session_id"]
 
@@ -121,16 +124,17 @@ def test_follow_up_is_asked_then_the_exchange_is_graded(client, monkeypatch):
     assert r.get_json()["follow_up"] == {"question": "Why a heap?"}
     drain()
     data = client.get(f"/api/report/{sid}").get_json()
-    assert data["answers"][0]["status"] == "awaiting_follow_up"          # not graded until the follow-up
+    assert data["answers"][0]["status"] == "graded"                       # no waiting for the follow-up
+    assert data["answers"][0]["follow_up"]["status"] == "asked"
     assert data["session"]["mode"] == "practice"
 
     assert post_take(client, sid, 0, part="follow_up").status_code == 200
     drain()
     data = client.get(f"/api/report/{sid}").get_json()
-    assert data["answers"][0]["status"] == "graded"
-    assert client.graded_with[-1]["question"] == "Why a heap?"           # graded as one exchange
-    assert client.graded_with[-1]["transcript"] == "Um, use a heap."
-    assert data["summary"]["follow_ups"] == 1
+    f = data["answers"][0]["follow_up"]
+    assert f["status"] == "graded" and f["grade"]["score"] == 6.0
+    assert client.graded_follow_ups == [("Why a heap?", "Um, use a heap.")]
+    assert data["summary"]["follow_ups"] == 1 and data["summary"]["content_score"] == 7.0  # main rubric only
 
 
 def test_skipping_or_ending_grades_what_was_said(client, monkeypatch):
@@ -140,11 +144,11 @@ def test_skipping_or_ending_grades_what_was_said(client, monkeypatch):
     post_take(client, sid, 1)
     assert client.post(f"/api/skip-follow-up/{sid}/0").status_code == 200
     assert client.post(f"/api/skip-follow-up/{sid}/2").status_code == 400  # nothing asked there
-    assert client.post(f"/api/finish/{sid}").get_json() == {"queued": 1}  # question 2 was mid-exchange
+    assert client.post(f"/api/finish/{sid}").get_json() == {"closed": 1}  # question 2 was mid-exchange
     drain()
     answers = client.get(f"/api/report/{sid}").get_json()["answers"]
     assert [a["status"] for a in answers] == ["graded", "graded", "unanswered"]
-    assert answers[0]["follow_up"]["status"] == "skipped"
+    assert [a.get("follow_up", {}).get("status") for a in answers] == ["skipped", "skipped", None]
 
 
 def test_follow_ups_off_and_bad_settings(client, monkeypatch):
@@ -191,3 +195,93 @@ def test_follow_up_has_a_hard_deadline():
     t = _time.time()
     assert answer_evaluator.follow_up("q", "a real answer here", post=trickling_server, timeout=0.2) is None
     assert _time.time() - t < 0.8
+
+
+# ---------- live transcription, interruptions, the voice ----------
+
+def test_cuts_land_in_pauses_after_speech():
+    import numpy as np
+    import stream
+    loud, quiet = 0.2, 0.001
+    rms = np.array([quiet] * 10 + [loud] * 40 + [quiet] * 20 + [loud] * 30)   # thinking, speech, 0.6 s pause, speech
+    assert stream.find_cut(rms, 0.01, pause_frames=16, max_frames=400) == 60    # middle of the pause
+    assert stream.find_cut(rms[:55], 0.01, 16, 400) is None                     # pause not long enough yet
+    assert stream.find_cut(np.array([loud] * 450), 0.01, 16, 400) is not None   # no pause at all: forced cut
+
+
+def test_live_stream_feeds_the_final_transcript(client, monkeypatch):
+    import numpy as np
+    import stream
+    calls = []
+
+    def fake_segment(audio, offset_s=0.0, context=""):
+        calls.append(round(offset_s, 2))
+        return [{"word": "segment", "start": round(offset_s + 0.1, 2), "end": round(offset_s + 0.4, 2)}]
+    monkeypatch.setattr(stream.speech, "transcribe_array", fake_segment)
+    monkeypatch.setattr(speech, "transcribe", lambda audio: pytest.fail("the full pass must not run"))
+    sid = start(client).get_json()["session_id"]
+    tone = (np.sin(np.arange(16000) / 3) * 8000).astype("<i2").tobytes()       # 1 s of "speech"
+    hush = np.zeros(16000, "<i2").tobytes()                                     # 1 s of silence
+    for seq, chunk in enumerate([tone, hush, tone]):
+        r = client.post(f"/api/stream/{sid}/0/main?seq={seq}", data=chunk)
+        assert r.status_code == 200 and "text" in r.get_json()
+    r = client.post("/api/answer", data={"session_id": sid, "index": "0", "duration": "3", "streamed": "1", "face": "{}"})
+    assert r.status_code == 200
+    assert r.get_json()["transcript"] == "segment segment"                      # two stretches of speech
+    assert calls[0] == 0.0 and calls[1] > 1.0                                    # the second carries its offset
+
+
+def test_a_lost_chunk_falls_back_to_the_full_recording(client, monkeypatch):
+    import numpy as np
+    import stream
+    monkeypatch.setattr(stream.speech, "transcribe_array", lambda *a, **k: [])
+    sid = start(client).get_json()["session_id"]
+    chunk = np.zeros(1600, "<i2").tobytes()
+    client.post(f"/api/stream/{sid}/0/main?seq=0", data=chunk)
+    client.post(f"/api/stream/{sid}/0/main?seq=2", data=chunk)                  # seq 1 never arrived
+    r = client.post("/api/answer", data={"session_id": sid, "index": "0", "duration": "7", "streamed": "1",
+                                         "face": "{}", "audio": (io.BytesIO(b"webm"), "a.webm")})
+    assert r.get_json()["transcript"] == "Um, use a heap."                      # from the full pass
+
+
+def test_rambling_is_measured_not_judged():
+    import delivery
+
+    def say(text, every=0.5, start=0.0):
+        return [{"word": w, "start": start + i * every, "end": start + i * every + 0.3} for i, w in enumerate(text.split())]
+    word = lambda i: "".join(chr(97 + (i // 26 ** k) % 26) for k in range(3))   # aaa, baa, caa... all distinct
+    varied = " ".join(word(i) for i in range(260))                              # 260 words, 0.5 s apart: 130 s
+    assert delivery.ramble(say(varied), "main") == "long"
+    assert delivery.ramble(say(varied)[:150], "main") is None                   # 75 s of varied speech is fine
+    assert delivery.ramble(say("short answer about heaps"), "main") is None
+    loop = "we use a hash map to count words and sort the counts " * 12
+    assert delivery.repetition(say(loop)) > delivery.REPEAT_RATIO
+    assert delivery.ramble(say(loop, every=0.45), "main") == "repeating"
+    assert delivery.repetition(say(varied)) == 0.0
+
+
+def test_an_interruption_becomes_the_follow_up(client, monkeypatch):
+    import delivery
+    monkeypatch.setattr(answer_evaluator, "follow_up", lambda *a: pytest.fail("no model call when interrupting"))
+    sid = start(client).get_json()["session_id"]
+    r = client.post("/api/answer", data={"session_id": sid, "index": "0", "duration": "130", "face": "{}",
+                                         "interrupted": "long", "audio": (io.BytesIO(b"webm"), "a.webm")})
+    assert r.get_json()["follow_up"]["question"] == delivery.WRAP_UP["long"]
+    drain()
+    a = client.get(f"/api/report/{sid}").get_json()["answers"][0]
+    assert a["interrupted"] == "long" and a["follow_up"]["kind"] == "wrap_up" and a["status"] == "graded"
+    bad = client.post("/api/answer", data={"session_id": sid, "index": "1", "duration": "5", "face": "{}",
+                                           "interrupted": "boring", "audio": (io.BytesIO(b"webm"), "a.webm")})
+    assert bad.status_code == 400
+
+
+def test_speech_endpoint(client, monkeypatch):
+    import tts
+    monkeypatch.setattr(tts, "available", lambda: False)
+    assert client.post("/api/speech", json={"text": "Hello there."}).status_code == 503   # room falls back
+    monkeypatch.setattr(tts, "available", lambda: True)
+    monkeypatch.setattr(tts, "speak", lambda text: b"RIFF....WAVE")
+    r = client.post("/api/speech", json={"text": "Hello there."})
+    assert r.status_code == 200 and r.mimetype == "audio/wav"
+    assert client.post("/api/speech", json={"text": ""}).status_code == 400
+    assert tts.sentences("First one. Second one? Third!") == ["First one.", "Second one?", "Third!"]

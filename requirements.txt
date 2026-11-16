@@ -4,4 +4,6 @@ requests
 faster-whisper
 # faster-whisper 1.2.1 breaks on PyAV 16+ (open() lost the metadata_errors argument)
 av<16
+# the interviewer's voice (Kokoro-82M, runs on the CPU)
+kokoro-onnx
 pytest

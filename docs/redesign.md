@@ -209,6 +209,13 @@ GET /api/report/<id> ◄── report page polls until grading is done
     - A recorder that stops on its own no longer freezes the room.
     - Session files are read under the same lock as writes: on Windows, `os.replace` fails while another thread has the file open.
 
+*Live pipeline (16 Nov 2026, asked for after M2).*
+
+- **Live transcription.** The browser taps the microphone with an AudioWorklet, resamples to 16 kHz and sends 1.5 s chunks to the local server. The server cuts the audio at pauses of 0.5 s or more (or at the quietest moment after 12 s of unbroken speech) and transcribes each stretch with Whisper. The stretches are passed the text so far as context, and times are kept absolute, so the pause numbers still hold. Captions show the text so far. When you finish, only the last stretch is left. The full recording is still uploaded as a fallback: if a chunk went missing, the whole recording is transcribed instead.
+- **Grading starts the moment the answer ends,** in parallel with writing the follow-up. The follow-up answer gets its own short grade (0–10 with one sentence), so the main rubric score no longer waits for the follow-up.
+- **The interviewer cuts in** on two observable rules: speaking time (120 s for a main answer, 60 s for a follow-up), or repetition, meaning 35% or more of the recent three-word content phrases were already said earlier, checked once past 45 s. The interviewer says a fixed wrap-up line at once, while the answer saves; that line becomes the question's follow-up. All thresholds are named constants in `delivery.py`.
+- **A natural voice:** Kokoro-82M (Apache-2.0, `kokoro-onnx`, about 354 MB), voice `af_heart`, on the CPU. Each sentence is voiced separately and cached, all main questions are voiced as soon as the session is created, and the wrap-up lines at warm-up. The dial follows the real audio level. On a busy CPU it voices about 2–3 s of work per second of speech, so a follow-up written on the spot can take a few extra seconds to start. On an idle machine it is faster than real time. DirectML (Windows GPU) fails on the model's ConvTranspose layer, and CUDA would need about 1 GB of NVIDIA libraries, so it stays on the CPU.
+
 **M3: coding and the front door.**
 - A code pad for coding questions.
 - Landing page redesign, removing the placeholder testimonials or replacing them with real ones.

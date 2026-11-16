@@ -55,8 +55,31 @@ def fetch_whisper():
     download_model(name)
 
 
+# The interviewer's voice: Kokoro-82M in kokoro-onnx format, mirrored on Hugging Face (same files as the
+# github.com/thewh1teagle/kokoro-onnx v1.0 release), checked against the published SHA-256.
+KOKORO = {
+    "kokoro-v1.0.onnx": "7d5df8ecf7d4b1878015a32686053fd0eebe2bc377234608764cc0ef3636a6c5",
+    "voices-v1.0.bin": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d",
+}
+KOKORO_DIR = VENDOR.parent.parent / "models" / "kokoro"
+
+
+def fetch_kokoro():
+    import hashlib
+    KOKORO_DIR.mkdir(parents=True, exist_ok=True)
+    for name, sha in KOKORO.items():
+        target = KOKORO_DIR / name
+        if target.exists() and hashlib.sha256(target.read_bytes()).hexdigest() == sha:
+            continue
+        data = fetch(f"https://huggingface.co/fastrtc/kokoro-onnx/resolve/main/{name}")
+        if hashlib.sha256(data).hexdigest() != sha:
+            sys.exit(f"{name}: checksum mismatch, not saved")
+        target.write_bytes(data)
+
+
 def main():
     fetch_whisper()
+    fetch_kokoro()
     for package in PACKAGES:
         unpack(*package)
     url, target = MODEL

@@ -4,17 +4,19 @@
 
 An AI interviewer reads each question aloud. You answer on camera and microphone. Afterwards you get a track sheet that puts **what you said** (graded against a rubric) next to **how you said it** (pace, pauses, filler words, time facing the camera), with every word on a timeline and your own recording to replay.
 
-Nothing is uploaded. Questions are spoken by your operating system's voice, speech is transcribed by a local Whisper model, answers are graded by a local LLM, and face tracking runs inside the browser.
+Nothing is uploaded. The interviewer speaks with a local neural voice (Kokoro-82M), your speech is transcribed live by a local Whisper model, answers are graded by a local LLM the moment you finish, and face tracking runs inside the browser.
 
 ## How it works
 
 1. **Book a session.** Company (Google, Meta, Amazon, Apple, Infosys, Capgemini), domain (Full Stack, Front End, Back End, Java, Python, AI/ML, System Design), difficulty, and 3, 5 or 10 questions from a bank of 990.
 2. **Sound check.** Consent, camera and microphone, an optional setup check, then three seconds looking into the lens. The calibration is your own baseline for "looking at the camera", so it works wherever your webcam sits. The setup check sends one still frame to a local vision model, which suggests fixes for light, framing and background (never comments on you); the frame isn't saved.
 3. **The interview.** Each question is read aloud and shown on screen. Recording starts when it finishes; you click *Done answering* (or it stops at 3 minutes). Then the interviewer can ask **one follow-up** about something you said ("How would you handle an empty string?"), written by the local model in about 5–15 s. A small console shows your mic level, whether you're facing the camera, talking time and the current silence. You can hide it.
+   - **Live captions** show what the local transcriber has heard as you talk; each stretch of speech is transcribed at your next pause, so the transcript is ready moments after you stop.
+   - **The interviewer cuts in** if an answer runs past two minutes of speaking (one minute for a follow-up) or starts repeating itself (measured from the transcript: recent three-word phrases you already said). It asks you to sum up, and the report notes it. You can switch this off.
    - **Mock** mode (default) saves all feedback for the end, like a real interview. **Practice** mode stops after each question with a quick take: your delivery numbers at once and the content score when grading finishes.
 4. **The track sheet.** While you keep answering, each take is transcribed (faster-whisper, word timestamps) and graded in the background by a local LLM. The report shows:
    - every take (and its follow-up) as a lane of words over time, with fillers and pauses of 2 s or more marked;
-   - content scores per criterion, graded over the whole exchange (answer plus follow-up answer), with reasons, a weighted score, what to change, and a strong answer for comparison;
+   - content scores per criterion for the main answer (grading starts the moment it ends), and a separate score for the follow-up answer, with reasons, a weighted score, what to change, and a strong answer for comparison;
    - delivery facts with rule-of-thumb ranges: words per minute, pauses, time before the first word, fillers per minute, share of time facing the camera;
    - your video, replayed from the browser that recorded it.
 

@@ -21,6 +21,43 @@ def _norm(word):
     return re.sub(r"[^a-z']", "", word.lower())
 
 
+# ---------- rambling: when the interviewer cuts in (observable signals only) ----------
+# Calibration knobs. Speaking time counts from the first word to the latest one.
+RAMBLE_SPEAKING_S = {"main": 120, "follow_up": 60}
+REPEAT_MIN_S = 45          # don't judge repetition in short answers
+REPEAT_RATIO = 0.35        # share of recent three-word phrases already said earlier in the answer
+STOPWORDS = {"the", "a", "an", "and", "or", "to", "of", "in", "on", "is", "it", "its", "that", "this", "so",
+             "i", "you", "we", "be", "for", "with", "as", "at", "by", "then", "would", "will", "can", "just",
+             "like", "basically", "actually", "okay", "yeah", "right", "do", "if", "are", "was"}
+WRAP_UP = {  # what the interviewer says when cutting in; the reply becomes the question's follow-up
+    "long": "Let me stop you there for time. In one or two sentences, what's your final answer?",
+    "repeating": "I think we've covered that part. Can you sum up your approach in one sentence?",
+}
+
+
+def repetition(words, window=40):
+    """Share of three-word phrases in the last `window` content words that already appeared earlier."""
+    toks = [t for t in (_norm(w["word"]) for w in words) if t and t not in FILLERS and t not in STOPWORDS]
+    if len(toks) < window + 12:
+        return 0.0
+    recent, earlier = toks[-window:], toks[:-window]
+    seen = {tuple(earlier[i:i + 3]) for i in range(len(earlier) - 2)}
+    grams = [tuple(recent[i:i + 3]) for i in range(len(recent) - 2)]
+    return sum(g in seen for g in grams) / len(grams)
+
+
+def ramble(words, part="main"):
+    """'long', 'repeating' or None: whether the interviewer should cut in. Never about tone or emotion."""
+    if not words:
+        return None
+    span = words[-1]["end"] - words[0]["start"]
+    if span >= RAMBLE_SPEAKING_S.get(part, 120):
+        return "long"
+    if span >= REPEAT_MIN_S and repetition(words) >= REPEAT_RATIO:
+        return "repeating"
+    return None
+
+
 def face_metrics(face):
     """face = {"samples": n, "face": frames with a face, "facing": frames looking at camera}."""
     samples = (face or {}).get("samples", 0)

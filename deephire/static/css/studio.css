@@ -257,6 +257,11 @@ p { margin: 0; }
 .tips .error { color: var(--hot); }
 #quick-take { display: grid; gap: 1rem; }
 #quick-take .feedback { background: var(--plate-lo); }
+/* what the local transcriber has heard so far: quiet, under the question */
+.live-caption { margin-top: .9rem; padding-top: .75rem; border-top: 1px dashed var(--rule);
+  color: var(--ink-2); font-size: .9375rem; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.question.long { font-size: clamp(1rem, 1.15vw, 1.125rem); }   /* 45+ word questions still fit beside the caption */
 #qt-content { display: grid; gap: .75rem; }
 .qt-group { display: grid; gap: .5rem; }   /* the existing well, not a paper card on the plate */
 

@@ -75,6 +75,7 @@
       <p class="take-line"><span class="legend" id="take-no">Question 1 of {{ session.answers|length }}</span><span class="legend num" id="take-time">0:00 / 3:00</span></p>
       <p class="question" id="question"></p>
       <p class="question-hint" id="question-hint"></p>
+      <p class="live-caption" id="live-caption" hidden></p>
     </div>
 
     <!-- practice mode: a quick take between questions -->
@@ -102,6 +103,7 @@
   </footer>
 </main>
 <script type="application/json" id="session-data">{{ session|tojson }}</script>
+<script type="application/json" id="wrap-up">{{ wrap_up|tojson }}</script>
 {% endblock %}
 {% block scripts %}
 <script type="module" src="{{ url_for('static', filename='js/room.js') }}"></script>

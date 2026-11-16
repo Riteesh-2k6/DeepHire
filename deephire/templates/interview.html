@@ -56,6 +56,15 @@
     </fieldset>
 
     <fieldset class="sheet-row">
+      <legend class="legend">Interruptions</legend>
+      <div class="keys">
+        <label><input type="radio" name="interruptions" value="on" checked><span class="key"><span class="led"></span>On</span></label>
+        <label><input type="radio" name="interruptions" value="off"><span class="key"><span class="led"></span>Off</span></label>
+      </div>
+      <p class="hint">The interviewer cuts in if an answer runs past two minutes of speaking, or starts repeating itself, and asks you to sum up. Measured from your words and timing, never from your face.</p>
+    </fieldset>
+
+    <fieldset class="sheet-row">
       <legend class="legend">Feedback</legend>
       <div class="keys">
         <label><input type="radio" name="mode" value="mock" checked><span class="key"><span class="led"></span>Mock <small>all at the end</small></span></label>
@@ -98,7 +107,8 @@
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company: value('company'), domain: value('domain'),
                                difficulty: value('difficulty'), count: Number(value('count')),
-                               follow_ups: value('follow_ups') === 'on', mode: value('mode') }),
+                               follow_ups: value('follow_ups') === 'on', interruptions: value('interruptions') === 'on',
+                               mode: value('mode') }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'The server refused that session.');
