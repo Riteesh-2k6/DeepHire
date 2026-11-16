@@ -24,3 +24,5 @@ const key = (sessionId, index) => `${sessionId}:${index}`;
 export const saveTake = (s, i, blob) => run('readwrite', st => st.put(blob, key(s, i)));
 export const loadTake = (s, i) => run('readonly', st => st.get(key(s, i))).catch(() => null);
 export const deleteTake = (s, i) => run('readwrite', st => st.delete(key(s, i)));
+// Every recording of one session (its main answers and follow-ups).
+export const deleteSessionTakes = s => run('readwrite', st => st.delete(IDBKeyRange.bound(`${s}:`, `${s}:￿`)));

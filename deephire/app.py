@@ -5,10 +5,12 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 
-from flask import Flask, abort, jsonify, render_template, request
+import requests
+from flask import Flask, abort, jsonify, redirect, render_template, request
 
 import answer_evaluator
 import delivery
+import settings
 import setup_check
 import speech
 import stream
@@ -16,7 +18,8 @@ import tts
 from smar_selector import company_dict, difficulty_dict, domain_dict, select_questions
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SESSIONS_DIR = os.path.join(BASE_DIR, "sessions")
+# The desktop app keeps sessions in %LOCALAPPDATA%\DeepHire (settings.DATA_DIR); a dev run keeps them here.
+SESSIONS_DIR = os.path.join(settings.DATA_DIR, "sessions")
 os.makedirs(SESSIONS_DIR, exist_ok=True)
 QUESTION_COUNTS = (3, 5, 10)
 MODES = ("mock", "practice")  # mock: feedback at the end; practice: a quick take after each question
@@ -113,7 +116,12 @@ def queue_grading(session_id, index, part="main"):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return redirect("/practice")
+
+
+@app.route("/about")
+def about():
+    return render_template("index.html")   # the 2025 landing page, not linked from the app
 
 
 @app.route("/blog")
@@ -129,11 +137,25 @@ for _n in range(1, 10):
     app.add_url_rule(f"/blog{_n}", f"blog{_n}", _blog_page(_n))
 
 
+@app.route("/practice")
 @app.route("/interview")
 def interview():
     companies = [c for c in company_dict if c != "Netflix"]  # Netflix has no questions in the bank yet
     return render_template("interview.html", companies=companies, domains=list(domain_dict),
-                           difficulties=list(difficulty_dict), counts=QUESTION_COUNTS)
+                           difficulties=list(difficulty_dict), counts=QUESTION_COUNTS,
+                           defaults=settings.all_settings(), page="practice")
+
+
+@app.route("/history")
+def history():
+    return render_template("history.html", page="history")
+
+
+@app.route("/settings")
+def settings_page():
+    return render_template("settings.html", page="settings", voices=settings.VOICES,
+                           whisper_models=settings.WHISPER_MODELS, data_dir=settings.DATA_DIR,
+                           voice_ready=tts.available())
 
 
 @app.route("/room")
@@ -143,7 +165,7 @@ def room():
 
 @app.route("/report")
 def report():
-    return render_template("report.html", session=load_session(request.args.get("session")))
+    return render_template("report.html", session=load_session(request.args.get("session")), page="history")
 
 
 # ---------- API ----------
@@ -152,10 +174,11 @@ def report():
 def submit_interview_preferences():
     data = request.get_json(silent=True) or {}
     company, domain, difficulty = data.get("company"), data.get("domain"), data.get("difficulty")
-    count = data.get("count", 5)
-    follow_ups = data.get("follow_ups", True)
-    interruptions = data.get("interruptions", True)
-    mode = data.get("mode", "mock")
+    defaults = settings.all_settings()
+    count = data.get("count", defaults["count"])
+    follow_ups = data.get("follow_ups", defaults["follow_ups"])
+    interruptions = data.get("interruptions", defaults["interruptions"])
+    mode = data.get("mode", defaults["mode"])
     if company not in company_dict or domain not in domain_dict or difficulty not in difficulty_dict:
         return jsonify(error="Pick a company, a domain and a difficulty."), 400
     if count not in QUESTION_COUNTS:
@@ -313,13 +336,15 @@ _voiced = {}
 _voiced_lock = threading.Lock()
 
 
-def voice_job(sentence, lane="now"):
-    """The (possibly already running or finished) job voicing this sentence."""
+def voice_job(sentence, lane="now", voice=None):
+    """The (possibly already running or finished) job voicing this sentence in the current voice."""
+    v, speed = tts.current_voice()
+    key = (sentence, voice or v, speed)
     with _voiced_lock:
-        job = _voiced.get(sentence)
+        job = _voiced.get(key)
         if job is None or (job.done() and job.exception()):
-            job = (voice_now if lane == "now" else voice_ahead).submit(tts.speak, sentence)
-            _voiced[sentence] = job
+            job = (voice_now if lane == "now" else voice_ahead).submit(tts.speak, sentence, voice or v, speed)
+            _voiced[key] = job
             if len(_voiced) > 256:  # forget the oldest finished jobs; tts.speak's own cache keeps the audio
                 for k in [k for k, j in _voiced.items() if j.done()][:64]:
                     del _voiced[k]
@@ -335,13 +360,14 @@ def tts_prefetch(text, lane="now"):
 @app.route("/api/speech", methods=["POST"])
 def speech_audio():
     """WAV for one sentence in the interviewer's voice (Kokoro, local). 503 means use the browser's voice."""
-    text = ((request.get_json(silent=True) or {}).get("text") or "").strip()
-    if not text or len(text) > 600:
-        return jsonify(error="Send one sentence of text."), 400
+    body = request.get_json(silent=True) or {}
+    text, voice = (body.get("text") or "").strip(), body.get("voice")
+    if not text or len(text) > 600 or (voice is not None and voice not in settings.VOICES):
+        return jsonify(error="Send one sentence of text (and a known voice, if any)."), 400
     if not tts.available():
         return jsonify(error="The local voice model isn't downloaded."), 503
     try:
-        wav = voice_job(text).result(timeout=120)
+        wav = voice_job(text, voice=voice).result(timeout=120)
     except Exception as e:
         app.logger.exception("speech failed")
         return jsonify(error=f"Couldn't voice that ({type(e).__name__})."), 503
@@ -365,6 +391,67 @@ def camera_check():
         return jsonify(error="Send one JPEG frame under 3 MB."), 400
     result = setup_check.check_frame(data)  # the frame is only held in memory for this call
     return jsonify(result), (502 if "error" in result else 200)
+
+
+@app.route("/api/sessions")
+def list_sessions():
+    """Every session on this machine, newest first, with the numbers the History page shows."""
+    out = []
+    for name in os.listdir(SESSIONS_DIR):
+        if not name.endswith(".json"):
+            continue
+        try:
+            s = load_session(name[:-5])
+        except Exception:  # a broken or foreign file shouldn't hide the rest
+            continue
+        summary = delivery.summarize(s.get("answers", []))
+        out.append({k: s.get(k) for k in ("session_id", "company", "domain", "difficulty", "created_at", "mode")}
+                   | {"questions": len(s.get("answers", [])), "summary": summary,
+                      "grading": any(a.get("status") == "grading" for a in s.get("answers", []))})
+    out.sort(key=lambda x: x.get("created_at") or "", reverse=True)
+    return jsonify(sessions=out)
+
+
+@app.route("/api/sessions/<session_id>", methods=["DELETE"])
+def delete_session(session_id):
+    path = _session_path(session_id)
+    with session_lock:
+        os.remove(path)
+    for i in range(30):  # drop any half-finished live audio for it
+        stream.discard(stream.key(session_id, i, "main"))
+        stream.discard(stream.key(session_id, i, "follow_up"))
+    return jsonify(ok=True)
+
+
+@app.route("/api/settings", methods=["GET", "POST"])
+def settings_api():
+    if request.method == "GET":
+        return jsonify(settings.all_settings())
+    try:
+        saved = settings.update(request.get_json(silent=True) or {})
+    except ValueError as e:
+        return jsonify(error=str(e)), 400
+    return jsonify(saved)
+
+
+@app.route("/api/settings/test-model", methods=["POST"])
+def test_model():
+    """Is the grading model reachable, and does it list the chosen model?"""
+    base = (request.get_json(silent=True) or {}).get("llm_base_url") or settings.get("llm_base_url")
+    try:
+        r = requests.get(f"{base.rstrip('/')}/models", timeout=10)
+        r.raise_for_status()
+        ids = [m.get("id") for m in r.json().get("data", [])]
+    except Exception as e:
+        return jsonify(ok=False, error=f"No answer from {base} ({type(e).__name__})."), 200
+    return jsonify(ok=True, models=ids)
+
+
+@app.route("/api/open-data-folder", methods=["POST"])
+def open_data_folder():
+    if hasattr(os, "startfile"):  # Windows: show the folder holding sessions and settings
+        os.startfile(settings.DATA_DIR)
+    return jsonify(ok=True)
 
 
 @app.route("/api/regrade/<session_id>/<int:index>", methods=["POST"])

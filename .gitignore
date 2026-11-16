@@ -183,3 +183,6 @@ deephire/static/vendor/
 .impeccable/review/
 # local models downloaded by scripts/fetch_vendor.py (Kokoro voice)
 deephire/models/
+deephire/settings.json
+build-pyinstaller.log
+!packaging/DeepHire.spec

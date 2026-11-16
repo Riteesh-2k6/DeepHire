@@ -9,8 +9,6 @@ from functools import lru_cache
 import numpy as np
 
 MODEL_DIR = os.getenv("KOKORO_DIR", os.path.join(os.path.dirname(os.path.abspath(__file__)), "models", "kokoro"))
-VOICE = os.getenv("TTS_VOICE", "af_heart")
-SPEED = float(os.getenv("TTS_SPEED", "1.0"))
 THREADS = int(os.getenv("TTS_THREADS", "4"))   # same reason as WHISPER_THREADS: don't fight other programs
 
 _lock = threading.Lock()
@@ -72,8 +70,18 @@ def to_wav(samples, rate):
     return buf.getvalue()
 
 
-@lru_cache(maxsize=128)  # questions are voiced ahead of time; the room then gets them instantly
-def speak(text):
-    """WAV bytes for one sentence (or short text)."""
-    samples, rate = load().create(text, voice=VOICE, speed=SPEED, lang="en-us")
+def current_voice():
+    import settings
+    return settings.get("tts_voice"), settings.get("tts_speed")
+
+
+@lru_cache(maxsize=256)  # questions are voiced ahead of time; the room then gets them instantly
+def _speak(text, voice, speed):
+    samples, rate = load().create(text, voice=voice, speed=speed, lang="en-us")
     return to_wav(samples, rate)
+
+
+def speak(text, voice=None, speed=None):
+    """WAV bytes for one sentence in the voice chosen in Settings (or the one given)."""
+    v, s = current_voice()
+    return _speak(text, voice or v, speed or s)

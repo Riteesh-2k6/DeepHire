@@ -41,7 +41,7 @@
       <legend class="legend">Questions</legend>
       <div class="keys">
         {% for n in counts %}
-        <label><input type="radio" name="count" value="{{ n }}" {% if n == 5 %}checked{% endif %}><span class="key"><span class="led"></span>{{ n }} <small>about {{ n * 2 }}–{{ n * 3 }} min</small></span></label>
+        <label><input type="radio" name="count" value="{{ n }}" {% if n == defaults.count %}checked{% endif %}><span class="key"><span class="led"></span>{{ n }} <small>about {{ n * 2 }}–{{ n * 3 }} min</small></span></label>
         {% endfor %}
       </div>
     </fieldset>
@@ -49,8 +49,8 @@
     <fieldset class="sheet-row">
       <legend class="legend">Follow-ups</legend>
       <div class="keys">
-        <label><input type="radio" name="follow_ups" value="on" checked><span class="key"><span class="led"></span>On</span></label>
-        <label><input type="radio" name="follow_ups" value="off"><span class="key"><span class="led"></span>Off</span></label>
+        <label><input type="radio" name="follow_ups" value="on" {% if defaults.follow_ups %}checked{% endif %}><span class="key"><span class="led"></span>On</span></label>
+        <label><input type="radio" name="follow_ups" value="off" {% if not defaults.follow_ups %}checked{% endif %}><span class="key"><span class="led"></span>Off</span></label>
       </div>
       <p class="hint">After each answer the interviewer can ask one follow-up about something you said, as a real interviewer would.</p>
     </fieldset>
@@ -58,8 +58,8 @@
     <fieldset class="sheet-row">
       <legend class="legend">Interruptions</legend>
       <div class="keys">
-        <label><input type="radio" name="interruptions" value="on" checked><span class="key"><span class="led"></span>On</span></label>
-        <label><input type="radio" name="interruptions" value="off"><span class="key"><span class="led"></span>Off</span></label>
+        <label><input type="radio" name="interruptions" value="on" {% if defaults.interruptions %}checked{% endif %}><span class="key"><span class="led"></span>On</span></label>
+        <label><input type="radio" name="interruptions" value="off" {% if not defaults.interruptions %}checked{% endif %}><span class="key"><span class="led"></span>Off</span></label>
       </div>
       <p class="hint">The interviewer cuts in if an answer runs past two minutes of speaking, or starts repeating itself, and asks you to sum up. Measured from your words and timing, never from your face.</p>
     </fieldset>
@@ -67,8 +67,8 @@
     <fieldset class="sheet-row">
       <legend class="legend">Feedback</legend>
       <div class="keys">
-        <label><input type="radio" name="mode" value="mock" checked><span class="key"><span class="led"></span>Mock <small>all at the end</small></span></label>
-        <label><input type="radio" name="mode" value="practice"><span class="key"><span class="led"></span>Practice <small>after each question</small></span></label>
+        <label><input type="radio" name="mode" value="mock" {% if defaults.mode == "mock" %}checked{% endif %}><span class="key"><span class="led"></span>Mock <small>all at the end</small></span></label>
+        <label><input type="radio" name="mode" value="practice" {% if defaults.mode == "practice" %}checked{% endif %}><span class="key"><span class="led"></span>Practice <small>after each question</small></span></label>
       </div>
       <p class="hint">Mock runs straight through, like the real thing. Practice pauses after each question with a quick take before you move on.</p>
     </fieldset>

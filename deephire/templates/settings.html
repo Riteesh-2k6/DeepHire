@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Settings · DeepHire{% endblock %}
+{% block main %}
+<main class="setup">
+  <div class="setup-head">
+    <h1>Settings</h1>
+    <p>Changes save as you make them and apply from the next question. Everything here is stored on this computer.</p>
+    <p class="saved-note lamp" id="saved" data-state="" hidden><span class="led"></span><span></span></p>
+  </div>
+
+  <form class="plate session-sheet" id="settings" novalidate>
+    <fieldset class="sheet-row">
+      <legend class="legend">Interviewer voice</legend>
+      <div style="display:grid;gap:.9rem">
+        <div class="keys">
+          {% for id, label in voices.items() %}
+          <label><input type="radio" name="tts_voice" value="{{ id }}"><span class="key"><span class="led"></span>{{ label }}</span></label>
+          {% endfor %}
+        </div>
+        <div class="field-row">
+          <label class="legend" for="speed">Speed</label>
+          <input type="range" id="speed" name="tts_speed" min="0.8" max="1.2" step="0.05">
+          <span class="speed-value num" id="speed-value"></span>
+          <button class="key" type="button" id="sample"><span class="led"></span>Play a sample</button>
+        </div>
+        {% if not voice_ready %}<p class="hint">The voice model isn't downloaded yet, so the browser's voice is used. Run <code>python scripts/fetch_vendor.py</code> once.</p>{% endif %}
+      </div>
+    </fieldset>
+
+    <fieldset class="sheet-row">
+      <legend class="legend">New sessions</legend>
+      <div style="display:grid;gap:.9rem">
+        <div class="field-row"><span class="legend" style="min-width:7rem">Questions</span>
+          <div class="keys">{% for n in (3, 5, 10) %}<label><input type="radio" name="count" value="{{ n }}"><span class="key"><span class="led"></span>{{ n }}</span></label>{% endfor %}</div></div>
+        <div class="field-row"><span class="legend" style="min-width:7rem">Follow-ups</span>
+          <div class="keys"><label><input type="radio" name="follow_ups" value="true"><span class="key"><span class="led"></span>On</span></label><label><input type="radio" name="follow_ups" value="false"><span class="key"><span class="led"></span>Off</span></label></div></div>
+        <div class="field-row"><span class="legend" style="min-width:7rem">Interruptions</span>
+          <div class="keys"><label><input type="radio" name="interruptions" value="true"><span class="key"><span class="led"></span>On</span></label><label><input type="radio" name="interruptions" value="false"><span class="key"><span class="led"></span>Off</span></label></div></div>
+        <div class="field-row"><span class="legend" style="min-width:7rem">Feedback</span>
+          <div class="keys"><label><input type="radio" name="mode" value="mock"><span class="key"><span class="led"></span>Mock</span></label><label><input type="radio" name="mode" value="practice"><span class="key"><span class="led"></span>Practice</span></label></div></div>
+        <p class="hint">These are the starting choices on the Practice page; you can still change them per session.</p>
+      </div>
+    </fieldset>
+
+    <fieldset class="sheet-row">
+      <legend class="legend">Grading model</legend>
+      <div style="display:grid;gap:.9rem">
+        <label class="field"><span class="legend">Address</span><input type="url" name="llm_base_url" spellcheck="false"></label>
+        <label class="field"><span class="legend">Model</span><input type="text" name="llm_model" spellcheck="false"></label>
+        <label class="field"><span class="legend">Key (only for a hosted model)</span><input type="password" name="llm_api_key" autocomplete="off"></label>
+        <div class="field-row">
+          <button class="key" type="button" id="test-model"><span class="led"></span>Test the connection</button>
+          <span class="lamp" id="test-result" data-state="" hidden><span class="led"></span><span></span></span>
+        </div>
+        <p class="hint">Any OpenAI-compatible server. The default is gpt-oss-20b through llama-swap on this computer.</p>
+      </div>
+    </fieldset>
+
+    <fieldset class="sheet-row">
+      <legend class="legend">Other models</legend>
+      <div style="display:grid;gap:.9rem">
+        <div class="field-row"><span class="legend" style="min-width:7rem">Transcription</span>
+          <div class="keys">{% for m in whisper_models %}<label><input type="radio" name="whisper_model" value="{{ m }}"><span class="key"><span class="led"></span>Whisper {{ m }}</span></label>{% endfor %}</div></div>
+        <label class="field"><span class="legend">Camera-check model</span><input type="text" name="vision_model" spellcheck="false"></label>
+        <p class="hint">Whisper small is more accurate and slower than base; it must be downloaded first.</p>
+      </div>
+    </fieldset>
+
+    <fieldset class="sheet-row">
+      <legend class="legend">Your data</legend>
+      <div style="display:grid;gap:.75rem">
+        <p class="path">{{ data_dir }}</p>
+        <div><button class="key" type="button" id="open-folder"><span class="led"></span>Open the folder</button></div>
+        <p class="hint">Sessions (transcripts and scores) and these settings live here. Recordings stay inside the app's own storage. Delete sessions from History.</p>
+      </div>
+    </fieldset>
+  </form>
+</main>
+{% endblock %}
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}

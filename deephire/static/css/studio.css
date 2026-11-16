@@ -400,3 +400,67 @@ dl.delivery dd small { font: .8125rem var(--font-ui); color: var(--ink-3); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: .01ms !important; animation: none !important; }
 }
+
+/* ---------- desktop app shell: a rail of Practice, History, Settings; the room keeps the whole window ---------- */
+body.with-rail { display: grid; grid-template-columns: 228px minmax(0, 1fr); }
+.app-main { min-width: 0; }
+.rail {
+  position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 1.75rem;
+  padding: 1.1rem .9rem 1rem; background: var(--plate-lo); border-right: 1px solid var(--plate-edge);
+}
+.rail .wordmark { padding: .1rem .4rem; }
+.rail-nav { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.rail-link {
+  display: flex; align-items: center; gap: .7rem; min-height: 44px; padding: .55rem .75rem;
+  border: 1px solid transparent; border-radius: var(--r-key); color: var(--ink-2); text-decoration: none;
+  font: 600 1rem var(--font-legend); letter-spacing: .02em;
+  transition: background .12s var(--ease-out), color .12s;
+}
+.rail-link svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round; }
+.rail-link:hover { background: rgba(255, 255, 255, .45); color: var(--ink); }
+.rail-link[aria-current="page"] {   /* the current page reads like a pressed key with a blue LED */
+  color: var(--ink); background: #f3f4f5; border-color: var(--plate-edge); box-shadow: 0 1px 0 var(--plate-edge);
+}
+.rail-link[aria-current="page"]::after {
+  content: ""; margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--key);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .2) inset;
+}
+.rail .offline { margin-top: auto; padding: 0 .4rem; align-items: flex-start; line-height: 1.35; }
+.rail .offline .led { margin-top: .3rem; }
+body.focus .room { min-height: calc(100vh - 58px); }
+@media (max-width: 760px) {
+  body.with-rail { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: .75rem; }
+  .rail-nav { display: flex; }
+  .rail .offline { display: none; }
+}
+
+/* ---------- form fields (Settings) ---------- */
+.field { display: grid; gap: .35rem; max-width: 34rem; }
+.field input[type="text"], .field input[type="url"], .field input[type="password"] {
+  min-height: 44px; padding: .55rem .75rem; font: 500 1rem var(--font-ui); color: var(--ink);
+  background: #f3f4f5; border: 1px solid var(--plate-edge); border-radius: var(--r-key);
+}
+.field input:focus-visible { outline: 2px solid var(--key); outline-offset: 1px; }
+.field .hint { margin: 0; }
+.field-row { display: flex; flex-wrap: wrap; gap: .75rem 1rem; align-items: center; }
+input[type="range"] { accent-color: var(--key); width: 14rem; }
+.speed-value { font: 500 1rem var(--font-num); min-width: 3.5rem; }
+.saved-note { font-size: .875rem; color: var(--ink-2); min-height: 1.25rem; }
+.path { font: 500 .875rem var(--font-num); background: var(--plate-lo); padding: .35rem .6rem; border-radius: 6px; word-break: break-all; }
+
+/* ---------- history ---------- */
+.history { max-width: 1180px; margin: 0 auto; padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 3vw, 2rem) 4rem; display: grid; gap: 1.5rem; }
+.history .sheet td.actions { white-space: nowrap; text-align: right; }
+.history .sheet td.actions .key { min-height: 36px; padding: .35rem .75rem; font-size: .875rem; }
+.history .sheet td.interview b { display: block; font-weight: 600; color: var(--ink); }
+.history .sheet td.interview span { color: var(--ink-2); font-size: .875rem; }
+.empty { padding: 2.5rem 1.5rem; display: grid; gap: .9rem; justify-items: start; }
+.empty h2 { font-size: 1.375rem; }
+.empty p { color: var(--ink-2); max-width: 52ch; }
+
+/* ---------- keyboard hints in the room ---------- */
+.shortcuts { font-size: .8125rem; color: var(--ink-3); }
+kbd { font: 600 .75rem var(--font-num); padding: .05rem .35rem; border: 1px solid var(--plate-edge);
+  border-bottom-width: 2px; border-radius: 4px; background: #f3f4f5; color: var(--ink-2); }

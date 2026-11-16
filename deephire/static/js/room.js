@@ -211,6 +211,7 @@ $('start').addEventListener('click', () => {
   $('steps').hidden = true;
   $('live').hidden = false;
   room.dataset.phase = 'live';
+  $('shortcuts').hidden = false;
   askQuestion(0);
 });
 
@@ -504,6 +505,15 @@ try { savedLevels = localStorage.getItem('deephire-levels'); } catch {}
 if (savedLevels === 'hidden' || (savedLevels === null && matchMedia('(max-width: 640px)').matches)) $('toggle-levels').click();
 
 addEventListener('beforeunload', e => { if (mode === 'listening' || mode === 'saving') e.preventDefault(); });
+
+// Keyboard: Space presses the blue key (Answer now / Done answering / Next question), S skips, H hides levels.
+addEventListener('keydown', e => {
+  if (e.repeat || e.ctrlKey || e.altKey || e.metaKey || e.target.closest('input, textarea, select')) return;
+  const press = id => { const b = $(id); if (!b.hidden && !b.disabled) { e.preventDefault(); b.click(); } };
+  if (e.code === 'Space') press('done');
+  else if (e.key === 's' || e.key === 'S') press('skip');
+  else if (e.key === 'h' || e.key === 'H') press('toggle-levels');
+});
 
 controls({ end: false });
 requestAnimationFrame(animate);

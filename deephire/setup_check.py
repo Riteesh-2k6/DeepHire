@@ -9,9 +9,8 @@ import re
 
 import requests
 
+import settings
 from answer_evaluator import chat_json, within
-
-VISION_MODEL = os.getenv("VISION_MODEL", "qwen2.5-vl-3b")
 MAX_TIPS = 4
 DEADLINE_S = 150  # first use loads the model (about a minute on CPU); later checks take ~5 s
 
@@ -50,9 +49,9 @@ def check_frame(jpeg_bytes, post=requests.post):
         {"type": "image_url", "image_url": {"url": image}},
     ]}]
     try:
-        result = within(DEADLINE_S, chat_json, messages, model=VISION_MODEL, max_tokens=300, timeout=DEADLINE_S, post=post)
+        result = within(DEADLINE_S, chat_json, messages, model=settings.get("vision_model"), max_tokens=300, timeout=DEADLINE_S, post=post)
     except requests.RequestException as e:
-        return {"error": f"The vision model '{VISION_MODEL}' didn't answer ({type(e).__name__}). Is it set up in llama-swap?"}
+        return {"error": f"The vision model '{settings.get('vision_model')}' didn't answer ({type(e).__name__}). Is it set up in llama-swap?"}
     except ValueError:
         return {"error": "The vision model returned something that wasn't the expected JSON."}
     if result is None:

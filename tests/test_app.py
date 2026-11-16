@@ -280,8 +280,68 @@ def test_speech_endpoint(client, monkeypatch):
     monkeypatch.setattr(tts, "available", lambda: False)
     assert client.post("/api/speech", json={"text": "Hello there."}).status_code == 503   # room falls back
     monkeypatch.setattr(tts, "available", lambda: True)
-    monkeypatch.setattr(tts, "speak", lambda text: b"RIFF....WAVE")
+    monkeypatch.setattr(tts, "speak", lambda text, *a: b"RIFF....WAVE")
     r = client.post("/api/speech", json={"text": "Hello there."})
     assert r.status_code == 200 and r.mimetype == "audio/wav"
     assert client.post("/api/speech", json={"text": ""}).status_code == 400
     assert tts.sentences("First one. Second one? Third!") == ["First one.", "Second one?", "Third!"]
+
+
+# ---------- desktop app: settings, history, pages ----------
+
+@pytest.fixture
+def fresh_settings(tmp_path, monkeypatch):
+    import settings
+    monkeypatch.setattr(settings, "DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(settings, "PATH", str(tmp_path / "settings.json"))
+    monkeypatch.setattr(settings, "_cache", None)
+    return settings
+
+
+def test_settings_validate_and_persist(fresh_settings, client):
+    s = fresh_settings
+    with pytest.raises(ValueError):
+        s.update({"tts_voice": "robot"})
+    with pytest.raises(ValueError):
+        s.update({"llm_base_url": "ftp://nope"})
+    with pytest.raises(ValueError):
+        s.update({"no_such_setting": 1})
+    s.update({"tts_speed": 1.1, "count": 3, "llm_base_url": "http://127.0.0.1:9000/v1/"})
+    assert json.load(open(s.PATH))["llm_base_url"] == "http://127.0.0.1:9000/v1"   # saved, trailing slash gone
+    s._cache = None
+    assert s.get("count") == 3 and s.get("tts_speed") == 1.1                      # reloaded from disk
+    assert client.post("/api/settings", json={"mode": "exam"}).status_code == 400
+    assert client.post("/api/settings", json={"mode": "practice"}).get_json()["mode"] == "practice"
+    sid = start(client, mode=None).get_json()                                     # a bad explicit value is refused
+    assert "error" in sid
+
+
+def test_new_sessions_start_from_saved_defaults(fresh_settings, client):
+    fresh_settings.update({"count": 10, "follow_ups": False, "mode": "practice"})
+    r = client.post("/submit-interview-preferences", json={"company": "Google", "domain": "Python", "difficulty": "Easy"})
+    data = client.get(f"/api/report/{r.get_json()['session_id']}").get_json()
+    assert len(data["answers"]) == 10
+    assert data["session"]["follow_ups"] is False and data["session"]["mode"] == "practice"
+
+
+def test_history_lists_and_deletes(client):
+    first = start(client).get_json()["session_id"]
+    second = start(client, company="Amazon").get_json()["session_id"]
+    post_take(client, second, 0)
+    drain()
+    listed = client.get("/api/sessions").get_json()["sessions"]
+    assert {s["session_id"] for s in listed} == {first, second}
+    amazon = next(s for s in listed if s["session_id"] == second)
+    assert amazon["summary"]["answered"] == 1 and amazon["questions"] == 3
+    assert client.delete(f"/api/sessions/{first}").status_code == 200
+    assert [s["session_id"] for s in client.get("/api/sessions").get_json()["sessions"]] == [second]
+    assert client.delete(f"/api/sessions/{first}").status_code == 404
+
+
+def test_app_pages(client):
+    assert client.get("/").headers["Location"].endswith("/practice")
+    for page in ("/practice", "/history", "/settings"):
+        r = client.get(page)
+        assert r.status_code == 200 and b'class="rail"' in r.data
+    sid = start(client).get_json()["session_id"]
+    assert b'class="rail"' not in client.get(f"/room?session={sid}").data   # the room takes the whole window

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}History · DeepHire{% endblock %}
+{% block main %}
+<main class="history">
+  <header class="sheet-head">
+    <div>
+      <h1>History</h1>
+      <p class="meta">Every session you've practised on this computer, newest first.</p>
+    </div>
+  </header>
+
+  <div class="paper sheet-table-wrap" id="history-wrap">
+    <table class="sheet" id="history-table" hidden>
+      <thead><tr>
+        <th class="legend">When</th><th class="legend">Interview</th><th class="legend n">Answered</th>
+        <th class="legend n">Content</th><th class="legend n">Pace</th><th class="legend n">On camera</th>
+        <th class="legend">Status</th><th><span class="visually-hidden">Actions</span></th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="empty" id="history-empty" hidden>
+      <h2>No sessions yet</h2>
+      <p>Your practice sessions appear here once you've answered a question, each with its track sheet and replays. Everything stays on this computer.</p>
+      <a class="key primary" href="/practice">Start a practice session</a>
+    </div>
+    <p class="take-state" id="history-loading" style="padding:1.5rem"><span class="lamp" data-state="busy"><span class="led"></span></span>Loading your sessions…</p>
+  </div>
+</main>
+{% endblock %}
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

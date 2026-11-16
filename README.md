@@ -33,6 +33,17 @@ Clarity (how easy the answer is to follow when heard) is scored too, but reporte
 
 It never infers emotion or "confidence" from your face. Facial expressions don't reliably map to inner states (Barrett et al., 2019), and the EU AI Act bans emotion recognition in workplaces and education, including recruitment. DeepHire measures behaviour you can see and change instead. The full reasoning is in [docs/redesign.md](docs/redesign.md).
 
+## The Windows app
+
+DeepHire runs as a desktop app: a native window (Edge WebView2, built into Windows 11) with the engine running inside the same process, so there is no browser, no address bar and nothing served beyond this computer. It has three places in a side rail: **Practice** (start a session), **History** (every past session with its track sheet, deletable) and **Settings** (voice, defaults for new sessions, models). The interview room takes the whole window; Space answers or finishes, S skips, H hides the levels.
+
+```bash
+python deephire/desktop.py                                   # run from source
+.venv\Scripts\pyinstaller packaging\DeepHire.spec --noconfirm   # build dist\DeepHire\DeepHire.exe (~830 MB, models included)
+```
+
+Your sessions, settings and the app's own storage (recordings) live in `%LOCALAPPDATA%\DeepHire`. The grading model still runs outside the app (llama-swap or any OpenAI-compatible server), set in Settings.
+
 ## Run it
 
 Needs Python 3.12 (faster-whisper's dependencies don't support 3.14 yet), a webcam and microphone, and Chrome or Edge.

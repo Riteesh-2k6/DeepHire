@@ -6,7 +6,7 @@ import threading
 
 # Whisper tends to drop disfluencies; a filler-heavy prompt keeps more of them.
 FILLER_PROMPT = "Umm, let me think, uh, hmm. Okay, so, um, here's my answer."
-MODEL_NAME = os.getenv("WHISPER_MODEL", "base")
+MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
 # Calibration knob: CTranslate2 otherwise starts a thread per core, and when other programs hold some
 # cores every sync point waits for the slowest thread: 13 s of speech took ~50 s on a busy laptop
 # with the default and ~16 s with 4 threads (1.3 s when the machine is idle).
@@ -14,19 +14,25 @@ THREADS = int(os.getenv("WHISPER_THREADS", "4"))
 
 _lock = threading.Lock()
 _model = None
+_loaded_name = None
 
 
 def load():
-    """The model, loaded once. From the local cache only: no network call, not even a version check."""
-    global _model
+    """The model chosen in Settings, loaded once (again after a change). A copy shipped with the app
+    (models/whisper-<name>) wins; otherwise the local Hugging Face cache. Never a network call."""
+    global _model, _loaded_name
+    import settings
+    name = settings.get("whisper_model")
     with _lock:  # the warm-up thread and the first answer can arrive together
-        if _model is None:
+        if _model is None or _loaded_name != name:
             from faster_whisper import WhisperModel  # slow import, load on first use
+            bundled = os.path.join(MODELS_DIR, f"whisper-{name}")
             try:
-                _model = WhisperModel(MODEL_NAME, device="cpu", compute_type="int8",
-                                      cpu_threads=THREADS, local_files_only=True)
+                _model = WhisperModel(bundled if os.path.isdir(bundled) else name, device="cpu",
+                                      compute_type="int8", cpu_threads=THREADS, local_files_only=True)
+                _loaded_name = name
             except Exception as e:
-                raise RuntimeError(f"Whisper model '{MODEL_NAME}' isn't downloaded yet: "
+                raise RuntimeError(f"Whisper model '{name}' isn't downloaded yet: "
                                    "run python scripts/fetch_vendor.py once.") from e
         return _model
 

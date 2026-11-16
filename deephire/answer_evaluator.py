@@ -10,13 +10,13 @@ from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import TimeoutError as FuturesTimeout
 
 import requests
-from dotenv import load_dotenv
+import settings
 
-load_dotenv()
 
-LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://127.0.0.1:8080/v1").rstrip("/")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-oss-20b")
-LLM_API_KEY = os.getenv("LLM_API_KEY", "")  # empty for a local server
+def _endpoint():
+    """Where the grading model lives, from Settings (read on every call, so changes apply at once)."""
+    key = settings.get("llm_api_key")  # empty for a local server
+    return settings.get("llm_base_url"), ({"Authorization": f"Bearer {key}"} if key else {})
 
 RUBRIC = {"technical_accuracy": 0.40, "problem_solving": 0.30, "completeness": 0.20, "optimization": 0.10}
 CRITERIA = list(RUBRIC) + ["clarity"]  # clarity is reported under delivery, not weighted
@@ -66,12 +66,12 @@ def with_final_score(result):
     return result
 
 
-def chat_json(messages, model=LLM_MODEL, max_tokens=2000, timeout=900, post=requests.post):
+def chat_json(messages, model=None, max_tokens=2000, timeout=900, post=requests.post):
     """One JSON-mode chat call to the local server. Raises requests.RequestException or ValueError."""
-    body = {"model": model, "temperature": 0.2, "max_tokens": max_tokens, "reasoning_effort": "low",
+    base, headers = _endpoint()
+    body = {"model": model or settings.get("llm_model"), "temperature": 0.2, "max_tokens": max_tokens, "reasoning_effort": "low",
             "response_format": {"type": "json_object"}, "messages": messages}
-    headers = {"Authorization": f"Bearer {LLM_API_KEY}"} if LLM_API_KEY else {}
-    r = post(f"{LLM_BASE_URL}/chat/completions", json=body, headers=headers, timeout=timeout)
+    r = post(f"{base}/chat/completions", json=body, headers=headers, timeout=timeout)
     r.raise_for_status()
     try:
         content = r.json()["choices"][0]["message"]["content"]
@@ -93,7 +93,7 @@ def grade(question, transcript, domain="", difficulty="", post=requests.post):
     try:
         result = chat_json(messages, post=post)
     except requests.RequestException as e:
-        return {"error": f"The grading model at {LLM_BASE_URL} didn't answer ({type(e).__name__}). Is llama-swap running?"}
+        return {"error": f"The grading model at {settings.get('llm_base_url')} didn't answer ({type(e).__name__}). Is llama-swap running?"}
     except ValueError:
         return {"error": "The grading model returned something that wasn't the expected JSON."}
     return with_final_score(result)
@@ -120,7 +120,7 @@ def grade_follow_up(question, transcript, follow_q, follow_transcript, domain=""
         result = chat_json(messages, max_tokens=600, post=post)
         score = max(0.0, min(10.0, float(result.get("score", 0))))
     except requests.RequestException as e:
-        return {"error": f"The grading model at {LLM_BASE_URL} didn't answer ({type(e).__name__})."}
+        return {"error": f"The grading model at {settings.get('llm_base_url')} didn't answer ({type(e).__name__})."}
     except (ValueError, TypeError, AttributeError):
         return {"error": "The grading model returned something that wasn't the expected JSON."}
     return {"score": score, "justification": str(result.get("justification", ""))}
@@ -143,9 +143,9 @@ def within(seconds, fn, *args, **kwargs):
 def warm_up(post=requests.post):
     """A one-token request: llama-swap loads the model on first use, so this pays that cost early."""
     try:
-        post(f"{LLM_BASE_URL}/chat/completions", timeout=300,
-             headers={"Authorization": f"Bearer {LLM_API_KEY}"} if LLM_API_KEY else {},
-             json={"model": LLM_MODEL, "messages": [{"role": "user", "content": "hi"}], "max_tokens": 1})
+        base, headers = _endpoint()
+        post(f"{base}/chat/completions", timeout=300, headers=headers,
+             json={"model": settings.get("llm_model"), "messages": [{"role": "user", "content": "hi"}], "max_tokens": 1})
     except requests.RequestException:
         pass
 
