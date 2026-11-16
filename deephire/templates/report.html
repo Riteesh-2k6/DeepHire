@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Track sheet · DeepHire{% endblock %}
+{% block context %}
+<p class="bar-context"><b>{{ session.company }}</b><span>{{ session.domain }}</span><span>{{ session.difficulty }}</span></p>
+{% endblock %}
+{% block main %}
+<main class="report">
+  <header class="sheet-head">
+    <div>
+      <h1>Track sheet</h1>
+      <p class="meta">{{ session.company }} · {{ session.domain }} · {{ session.difficulty }} · {{ session.answers|length }} questions · {{ session.created_at[:10] }}</p>
+    </div>
+    <p class="grading-note lamp" id="grading-note" data-state="busy" hidden><span class="led"></span><span></span></p>
+  </header>
+
+  <section class="paper lanes" aria-labelledby="lanes-title">
+    <div class="lanes-head">
+      <h2 id="lanes-title" class="legend">Every take, word by word</h2>
+      <p>Each mark is a word at the moment you said it. Gaps of 2 s or more are marked as pauses.</p>
+    </div>
+    <div id="lanes"><div class="skeleton" style="height:52px"></div></div>
+    <p class="key-legend">
+      <span><i style="background:#3b3d42"></i>word</span>
+      <span><i style="background:var(--lamp)"></i>filler (um, uh…)</span>
+      <span><i style="border:1px dashed var(--hot);background:rgba(184,48,28,.05)"></i>pause of 2 s or more</span>
+    </p>
+  </section>
+
+  <section class="totals" id="totals" aria-label="Session totals"></section>
+
+  <div class="sheet-table-wrap">
+    <table class="sheet" id="sheet">
+      <thead><tr>
+        <th class="legend">Take</th><th class="legend">Question</th><th class="legend n">Length</th>
+        <th class="legend n">Pace</th><th class="legend n">Pauses</th><th class="legend n">Fillers/min</th>
+        <th class="legend n">On camera</th><th class="legend n">Content</th><th class="legend">Status</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div id="takes" style="display:grid;gap:1.5rem"></div>
+
+  <section class="method">
+    <h2>How these numbers are made</h2>
+    <ul>
+      <li><b>Content</b> is graded by a language model running on this computer, against a rubric: technical accuracy 40%, problem solving 30%, completeness 20%, optimization 10%. The weighted score is calculated, not written by the model. These scores have not been checked against human interviewers.</li>
+      <li><b>Pace, pauses and fillers</b> come from word timings in a transcript made on this computer (Whisper). Speech recognition tidies up some "um"s and "uh"s, so the filler count is a lower bound.</li>
+      <li><b>On camera</b> is the share of time your head and eyes pointed where they did during calibration. Glasses, low light and a camera far to one side make it less accurate.</li>
+      <li>The guide ranges (120–160 words a minute, under 3 fillers a minute, on camera at least 60% of the time) are rules of thumb, not grades. DeepHire never infers emotions or "confidence" from your face.</li>
+    </ul>
+  </section>
+</main>
+<script type="application/json" id="session-data">{{ {"session_id": session.session_id}|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/report.js') }}"></script>
+{% endblock %}

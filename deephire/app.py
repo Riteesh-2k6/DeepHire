@@ -1,218 +1,203 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for
-import uuid
-import os
 import json
-from smar_selector import smart_question_selector
-from answer_evaluator import AnswerEvaluator
+import os
+import threading
 import time
-from werkzeug.utils import secure_filename
-import requests
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 
+from flask import Flask, abort, jsonify, render_template, request
+
+import answer_evaluator
+import delivery
+import speech
+from smar_selector import company_dict, difficulty_dict, domain_dict, select_questions
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SESSIONS_DIR = os.path.join(BASE_DIR, "sessions")
+os.makedirs(SESSIONS_DIR, exist_ok=True)
+QUESTION_COUNTS = (3, 5, 10)
+
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
-os.makedirs('uploads', exist_ok=True)
-os.makedirs('sessions', exist_ok=True)
-evaluator = AnswerEvaluator()
+app.config["MAX_CONTENT_LENGTH"] = 40 * 1024 * 1024  # a 3-minute opus clip is ~1-2 MB
 
-@app.route('/')
-def index():
-   return render_template('index.html')
-# Blogs page route 
-@app.route('/blog')
-def blog():
-    return render_template('blog.html')
+# ponytail: one lock for every session file; per-session locks if many people ever share a server.
+session_lock = threading.Lock()
+# One grading call at a time: they all share one local GPU.
+grader = ThreadPoolExecutor(max_workers=1)
 
-@app.route('/blog1')
-def blog1():
-    return render_template('blogs/blog1.html')
 
-@app.route('/blog2')
-def blog2():
-    return render_template('blogs/blog2.html')
+# ---------- session files ----------
 
-@app.route('/blog3')
-def blog3():
-    return render_template('blogs/blog3.html')
-
-@app.route('/blog4')
-def blog4():
-    return render_template('blogs/blog4.html')
-
-@app.route('/blog5')
-def blog5():
-    return render_template('blogs/blog5.html')
-
-@app.route('/blog6')
-def blog6():
-    return render_template('blogs/blog6.html')
-
-@app.route('/blog7')
-def blog7():
-    return render_template('blogs/blog7.html')
-
-@app.route('/blog8')
-def blog8():
-    return render_template('blogs/blog8.html')
-
-@app.route('/blog9')
-def blog9():
-    return render_template('blogs/blog9.html')
-@app.route('/interview', methods=['GET']) 
-def interview():
-    """Render the main selection page"""
-    return render_template('interview.html')
-
-@app.route('/submit-interview-preferences', methods=['POST'])
-def submit_interview_preferences():
-    # Get the JSON data from the request
-    data = request.get_json()
-    
-    if not data:
-        return jsonify({'error': 'No data provided'}), 400
-    
-    # Extract the interview preferences
-    company = data.get('company')
-    domain = data.get('domain')
-    difficulty = data.get('difficulty')
-    
-    # Validate the data
-    if not all([company, domain, difficulty]):
-        return jsonify({'error': 'Missing required fields'}), 400
-    
-    # Generate a unique session ID for this interview session
-    session_id = str(uuid.uuid4())
-    
-    # Create session data using smart_question_selector
-    session_data = {
-        'session_id': session_id,
-        'preferences': {
-            'company': company,
-            'domain': domain,
-            'difficulty': difficulty
-        }
-    }
-    
-    # Generate questions and store session data
-    smart_question_selector(session_data)
-    
-    return jsonify(session_data)
-@app.route('/chatbot', methods=['GET', 'POST'])
-def chatbot():
-    session_id = request.args.get('session')
-    if not session_id:
-        return redirect(url_for('index'))
-
-    session_file = f"sessions/{session_id}.json"
-    if not os.path.exists(session_file):
-        return redirect(url_for('index'))
-
-    with open(session_file, 'r') as f:
-        session_data = json.load(f)
-
-    if request.method == 'GET':
-        return render_template('chatbot.html', session_data=session_data)
-
-@app.route('/api/end-interview', methods=['POST'])
-def end_interview():
-    """API endpoint to end the interview early and move to evaluation"""
-    data = request.json
-    session_id = data.get('session_id')
-    
-    # Verify session exists
-    if not os.path.exists(f"sessions/{session_id}.json"):
-        return jsonify({"error": "Session not found"})
-    
-    # Load session data
-    with open(f"sessions/{session_id}.json", 'r') as f:
-        session_data = json.load(f)
-    
-    # Mark interview as complete
-    session_data["is_complete"] = True
-    
-    # Save updated session data
-    with open(f"sessions/{session_id}.json", 'w') as f:
-        json.dump(session_data, f, indent=2)
-    
-    return jsonify({
-        "success": True,
-        "redirect": f"/evaluate?session={session_id}"
-    })
-
-@app.route('/evaluate', methods=['POST'])
-def evaluate():
+def _session_path(session_id):
     try:
-        session_json = request.get_json()
-
-        if not session_json:
-            return "Invalid or missing JSON data", 400
-
-        # One answer from the chat page: score it and return the rubric as JSON
-        if "answer" in session_json and "question" in session_json:
-            return jsonify(evaluator.evaluate_answer(
-                session_json["question"], session_json["answer"],
-                session_json.get("domain", ""), session_json.get("difficulty", "")))
-
-        # Save to a temporary file
-        session_id = session_json.get("session_id", "latest")
-        filename = f"{session_id}.json"
-        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        with open(temp_path, 'w') as f:
-            json.dump(session_json, f, indent=2)
-
-# Now process this named file
-        result_data = evaluator.process_json_file(temp_path)
-
-        if "error" in result_data:
-            return f"Evaluation error: {result_data['error']}", 500
-
-        return render_template("results.html",
-                               session_info=result_data["session_info"],
-                               responses=result_data["responses"],
-                               total_score=result_data["total_score"])
-    except Exception as e:
-        return f"Server error during evaluation: {str(e)}", 500
-@app.route('/results')
-def results():
-    """Show the interview results"""
-    session_id = request.args.get('session')
-    
-    # Verify session exists
-    if not os.path.exists(f"sessions/{session_id}.json"):
-        return redirect(url_for('index'))
-    
-    # Load session data
-    with open(f"sessions/{session_id}.json", 'r') as f:
-        session_data = json.load(f)
-    
-    # Check if evaluation is complete
-    if not session_data.get("evaluated", False):
-        # Process the evaluations if not already done
-        evaluator.process_json_file(f"sessions/{session_id}.json")
-        
-        # Reload data after evaluation
-        with open(f"sessions/{session_id}.json", 'r') as f:
-            session_data = json.load(f)
-    
-    # Prepare data for the results template
-    results_data = {
-        "session_id": session_id,
-        "session_info": {
-            "company": session_data.get("company", ""),
-            "domain": session_data.get("domain", ""),
-            "difficulty": session_data.get("difficulty", "")
-        },
-        "total_score": session_data.get("avg_score", 0),
-        "responses": [{
-            "question": eval.get("question", ""),
-            "answer": eval.get("answer", ""),
-            "model_answer": eval.get("model_answer", ""),
-            "score": eval.get("score", 0),
-            "feedback": eval.get("feedback", "")
-        } for eval in session_data.get("evaluations", [])]}
-    
-    return render_template('results.html', results_data)
+        uuid.UUID(str(session_id))  # ids are uuid4s we issue; this also blocks path tricks
+    except ValueError:
+        abort(404)
+    path = os.path.join(SESSIONS_DIR, f"{session_id}.json")
+    if not os.path.exists(path):
+        abort(404)
+    return path
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+def load_session(session_id):
+    with open(_session_path(session_id), encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_session(session):
+    path = os.path.join(SESSIONS_DIR, f"{session['session_id']}.json")
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(session, f, indent=2)
+    os.replace(tmp, path)  # never leave a half-written file
+
+
+def update_session(session_id, change):
+    with session_lock:
+        session = load_session(session_id)
+        change(session)
+        save_session(session)
+        return session
+
+
+# ---------- grading ----------
+
+def grade_answer(session_id, index):
+    s = load_session(session_id)
+    answer = s["answers"][index]
+    result = answer_evaluator.grade(answer["question"], answer.get("transcript", ""), s["domain"], s["difficulty"])
+
+    def store(session):
+        session["answers"][index]["grade"] = result
+        session["answers"][index]["status"] = "error" if "error" in result else "graded"
+    update_session(session_id, store)
+
+
+def queue_grading(session_id, index):
+    def mark(session):
+        session["answers"][index]["status"] = "grading"
+        session["answers"][index]["grade"] = None
+    update_session(session_id, mark)
+    grader.submit(grade_answer, session_id, index)
+
+
+# ---------- pages ----------
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/blog")
+def blog():
+    return render_template("blog.html")
+
+
+def _blog_page(n):
+    return lambda: render_template(f"blogs/blog{n}.html")
+
+
+for _n in range(1, 10):
+    app.add_url_rule(f"/blog{_n}", f"blog{_n}", _blog_page(_n))
+
+
+@app.route("/interview")
+def interview():
+    companies = [c for c in company_dict if c != "Netflix"]  # Netflix has no questions in the bank yet
+    return render_template("interview.html", companies=companies, domains=list(domain_dict),
+                           difficulties=list(difficulty_dict), counts=QUESTION_COUNTS)
+
+
+@app.route("/room")
+def room():
+    return render_template("room.html", session=load_session(request.args.get("session")))
+
+
+@app.route("/report")
+def report():
+    return render_template("report.html", session=load_session(request.args.get("session")))
+
+
+# ---------- API ----------
+
+@app.route("/submit-interview-preferences", methods=["POST"])
+def submit_interview_preferences():
+    data = request.get_json(silent=True) or {}
+    company, domain, difficulty = data.get("company"), data.get("domain"), data.get("difficulty")
+    count = data.get("count", 5)
+    if company not in company_dict or domain not in domain_dict or difficulty not in difficulty_dict:
+        return jsonify(error="Pick a company, a domain and a difficulty."), 400
+    if count not in QUESTION_COUNTS:
+        return jsonify(error=f"Number of questions must be one of {QUESTION_COUNTS}."), 400
+
+    questions = select_questions(company, domain, difficulty, count)
+    if not questions:
+        return jsonify(error=f"There are no {domain} questions for {company} in the bank yet."), 400
+
+    session = {
+        "session_id": str(uuid.uuid4()),
+        "company": company, "domain": domain, "difficulty": difficulty,
+        "created_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "answers": [{"question": q, "status": "unanswered"} for q in questions],
+    }
+    save_session(session)
+    return jsonify(session_id=session["session_id"], redirect=f"/room?session={session['session_id']}")
+
+
+@app.route("/api/answer", methods=["POST"])
+def submit_answer():
+    session_id = request.form.get("session_id")
+    s = load_session(session_id)
+    try:
+        index = int(request.form.get("index", ""))
+        duration = float(request.form.get("duration", 0))
+        face = json.loads(request.form.get("face") or "{}")
+    except ValueError:
+        return jsonify(error="Bad answer data."), 400
+    if not 0 <= index < len(s["answers"]):
+        return jsonify(error="No such question."), 400
+    audio = request.files.get("audio")
+    if not audio:
+        return jsonify(error="No audio was sent."), 400
+
+    face = {k: int(face.get(k, 0)) for k in ("samples", "face", "facing")}
+    try:
+        transcript, words = speech.transcribe(audio.read())  # in memory; the audio is never written to disk
+    except Exception as e:  # a corrupt or empty recording shouldn't kill the interview
+        app.logger.exception("transcription failed")
+        return jsonify(error=f"Couldn't transcribe that recording ({type(e).__name__})."), 422
+
+    metrics = delivery.delivery_metrics(words, duration, face)
+
+    def store(session):
+        session["answers"][index].update(transcript=transcript, words=words, face=face, delivery=metrics)
+    update_session(session_id, store)
+    queue_grading(session_id, index)
+    return jsonify(transcript=transcript, delivery=metrics)
+
+
+@app.route("/api/regrade/<session_id>/<int:index>", methods=["POST"])
+def regrade(session_id, index):
+    s = load_session(session_id)
+    if not 0 <= index < len(s["answers"]) or "transcript" not in s["answers"][index]:
+        return jsonify(error="Nothing to grade for that question."), 400
+    queue_grading(session_id, index)
+    return jsonify(ok=True)
+
+
+@app.route("/api/report/<session_id>")
+def report_data(session_id):
+    s = load_session(session_id)
+    return jsonify(
+        session={k: s[k] for k in ("session_id", "company", "domain", "difficulty", "created_at")},
+        answers=s["answers"],
+        summary=delivery.summarize(s["answers"]),
+        ranges=delivery.RANGES,
+        pause_s=delivery.PAUSE_S,
+        grading=sum(a.get("status") == "grading" for a in s["answers"]),
+    )
+
+
+if __name__ == "__main__":
+    # threaded so the report can poll while an answer is being transcribed
+    app.run(debug=os.getenv("FLASK_DEBUG") == "1", threaded=True)

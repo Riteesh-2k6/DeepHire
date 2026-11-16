@@ -172,3 +172,12 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# DeepHire runtime data: transcripts and scores stay on this machine
+deephire/sessions/
+deephire/uploads/
+# downloaded by scripts/fetch_vendor.py
+deephire/static/vendor/
+.impeccable/live/
+.impeccable/questions/
+.impeccable/review/

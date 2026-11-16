@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}DeepHire{% endblock %}</title>
+  <meta name="description" content="Practise technical interviews out loud, on camera, entirely on your own computer.">
+  <link rel="icon" href="{{ url_for('static', filename='mark.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/studio.css') }}">
+</head>
+<body>
+<!--
+THESIS: Every answer is a take in a bright booth. Refuses the dark video-call grid and the KPI-tile report.
+OWN-WORLD: anodised grey faceplates with engraved Barlow legends, hardware keys with LED dots, one ivory VU dial, pale-blue ruled track sheets; colour lives only in meters and state lamps; light because the screen lights the student's face.
+STORY: the student hears the question on talkback, answers on camera, and leaves with a track sheet naming what to change.
+FIRST VIEWPORT: room: camera in a light frame left (~60%), stand panel right with the talkback dial above the question, console strip along the bottom with Done answering as the one blue key. Report: the multitrack plot of every take owns the top.
+FORM: Recording Session, grounded list #4, seed e6241cc0.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+-->
+<header class="bar">
+  <a class="wordmark" href="{{ url_for('index') }}">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="7" fill="#efe6c8" stroke="#17181a" stroke-width="1.5"/><path d="M7 21a9 9 0 0 1 18 0" fill="none" stroke="#17181a" stroke-width="1.5"/><path d="M21.4 14.6a9 9 0 0 1 3.6 6.4" fill="none" stroke="#b8301c" stroke-width="3"/><path d="M16 22 20 11" stroke="#17181a" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="22" r="1.8" fill="#17181a"/></svg>
+    DeepHire
+  </a>
+  {% block context %}{% endblock %}
+  <div class="bar-right">
+    <span class="offline lamp" data-state="on"><span class="led"></span>Runs on this computer</span>
+  </div>
+</header>
+{% block main %}{% endblock %}
+{% block scripts %}{% endblock %}
+</body>
+</html>

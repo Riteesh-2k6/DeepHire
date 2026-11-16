@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Interview room · DeepHire{% endblock %}
+{% block context %}
+<p class="bar-context"><b>{{ session.company }}</b><span>{{ session.domain }}</span><span>{{ session.difficulty }}</span><span>{{ session.answers|length }} questions</span></p>
+{% endblock %}
+{% block main %}
+<main class="room" id="room" data-phase="check">
+  <section class="booth" aria-label="Your camera">
+    <div class="window">
+      <video id="cam" autoplay muted playsinline></video>
+      <p class="window-empty" id="cam-empty">Camera off</p>
+      <p class="window-cue" id="cue" hidden></p>
+    </div>
+  </section>
+
+  <section class="stand plate" aria-live="polite">
+    <div class="talkback">
+      <svg class="dial" viewBox="0 0 148 96" role="img" aria-labelledby="dial-text">
+        <rect class="face" x="1" y="1" width="146" height="94" rx="8"/>
+        <path class="scale" d="M22 80 A52 52 0 0 1 126 80"/>
+        <path class="zone" d="M113.8 46.6 A52 52 0 0 1 126 80"/>
+        <g class="ticks">
+          <line class="tick" x1="30.5" y1="59.7" x2="23.2" y2="56.3"/>
+          <line class="tick" x1="40.1" y1="46.1" x2="34.4" y2="40.4"/>
+          <line class="tick" x1="53.7" y1="36.5" x2="50.3" y2="29.2"/>
+          <line class="tick" x1="74" y1="32" x2="74" y2="24"/>
+          <line class="tick" x1="94.3" y1="36.5" x2="97.7" y2="29.2"/>
+          <line class="tick" x1="107.9" y1="46.1" x2="113.6" y2="40.4"/>
+        </g>
+        <line class="needle" id="needle" x1="74" y1="80" x2="74" y2="30"/>
+        <circle class="hub" cx="74" cy="80" r="4"/>
+      </svg>
+      <p class="legend dial-caption" id="dial-text">Talkback</p>
+      <p class="status" id="status">Sound check</p>
+      <p class="status-sub" id="status-sub">Three quick steps, then the first question.</p>
+    </div>
+
+    <!-- sound check -->
+    <ol class="steps" id="steps">
+      <li class="step" id="step-consent">
+        <h2>What this room uses</h2>
+        <p>Your camera and microphone, for this practice only. The video is kept in this browser so you can replay it. Your speech is transcribed and graded by models on this computer, then the audio is discarded. Nothing is uploaded.</p>
+        <label class="consent"><input type="checkbox" id="consent"> I understand, and I'm happy to use my camera and microphone for this session.</label>
+      </li>
+      <li class="step" id="step-devices" aria-disabled="true">
+        <h2>Camera and microphone</h2>
+        <p>Your browser will ask for permission.</p>
+        <div><button class="key" id="devices" disabled><span class="led"></span>Turn on camera and mic</button></div>
+        <p class="checks" id="checks" hidden>
+          <span class="lamp" id="chk-cam"><span class="led"></span><span>Camera</span></span>
+          <span class="lamp" id="chk-mic"><span class="led"></span><span>Microphone</span></span>
+          <span class="lamp" id="chk-face"><span class="led"></span><span>Face tracking</span></span>
+        </p>
+      </li>
+      <li class="step" id="step-calibrate" aria-disabled="true">
+        <h2>Look into the lens</h2>
+        <p>Three seconds, looking straight at your camera and staying quiet. This sets your own "looking at the camera" and your room's background noise.</p>
+        <div><button class="key" id="calibrate" disabled><span class="led"></span>Calibrate</button></div>
+      </li>
+      <li class="step" id="step-start" aria-disabled="true">
+        <h2>Ready</h2>
+        <p>Each question is read aloud, then recording starts. Click <b>Done answering</b> when you finish; answers stop at 3 minutes.</p>
+        <div><button class="key primary" id="start" disabled>Start the interview</button></div>
+      </li>
+    </ol>
+
+    <!-- live -->
+    <div id="live" hidden>
+      <p class="take-line"><span class="legend" id="take-no">Question 1 of {{ session.answers|length }}</span><span class="legend num" id="take-time">0:00 / 3:00</span></p>
+      <p class="question" id="question"></p>
+      <p class="question-hint" id="question-hint"></p>
+    </div>
+    <p class="room-error" id="room-error" role="alert" hidden></p>
+  </section>
+
+  <footer class="console plate" id="console">
+    <div class="readouts" id="readouts">
+      <div class="readout"><span class="legend">Mic</span><span class="bars" id="mic-bars">{% for _ in range(12) %}<i></i>{% endfor %}</span></div>
+      <div class="readout"><span class="legend">Camera</span><span class="value lamp" id="camera-state"><span class="led"></span><span>Off</span></span></div>
+      <div class="readout"><span class="legend">Talking</span><span class="value" id="talk-time">0:00</span></div>
+      <div class="readout"><span class="legend">Silence</span><span class="value" id="silence">0 s</span></div>
+    </div>
+    <div class="controls">
+      <button class="key quiet" id="toggle-levels" aria-pressed="false">Hide levels</button>
+      <button class="key" id="end" hidden>End interview</button>
+      <button class="key" id="skip" hidden>Skip question</button>
+      <button class="key primary" id="done" hidden>Done answering</button>
+    </div>
+  </footer>
+</main>
+<script type="application/json" id="session-data">{{ session|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/room.js') }}"></script>
+{% endblock %}
