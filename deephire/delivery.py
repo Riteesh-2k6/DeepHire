@@ -57,18 +57,20 @@ def delivery_metrics(words, duration_s, face=None):
 
 
 def summarize(answers):
-    """Session totals over answered questions, weighting by speaking time and frames."""
+    """Session totals, weighting by speaking time and frames. Follow-up answers count as speech too."""
     done = [a for a in answers if a.get("delivery")]
     graded = [a["grade"]["final_score"] for a in answers
               if a.get("grade") and "final_score" in a["grade"]]
-    d = [a["delivery"] for a in done]
+    takes = done + [a["follow_up"] for a in done if (a.get("follow_up") or {}).get("delivery")]
+    d = [t["delivery"] for t in takes]
     span = sum(x.get("span_s", 0) for x in d)
     words = sum(x["word_count"] for x in d if x.get("span_s"))
     fillers = sum(x["filler_count"] for x in d)
-    samples = sum(a.get("face", {}).get("samples", 0) for a in done)
-    facing = sum(a.get("face", {}).get("facing", 0) for a in done)
+    samples = sum(t.get("face", {}).get("samples", 0) for t in takes)
+    facing = sum(t.get("face", {}).get("facing", 0) for t in takes)
     return {
         "answered": len(done),
+        "follow_ups": len(takes) - len(done),
         "graded": len(graded),
         "content_score": round(sum(graded) / len(graded), 1) if graded else None,
         "wpm": round(words / span * 60) if span >= MIN_SPAN_S else None,

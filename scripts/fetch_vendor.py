@@ -7,6 +7,7 @@ from the npm registry, and the Face Landmarker model from Google's model bucket,
 into deephire/static/vendor/.
 """
 import io
+import os
 import pathlib
 import sys
 import tarfile
@@ -42,7 +43,20 @@ def unpack(package, version, wanted, folder):
             target.write_bytes(tar.extractfile(f"package/{path}").read())
 
 
+def fetch_whisper():
+    """The speech model goes into the Hugging Face cache; the app then loads it with no network call."""
+    try:
+        from faster_whisper import download_model
+    except ImportError:
+        print("skipping the Whisper model: pip install -r requirements.txt first")
+        return
+    name = os.getenv("WHISPER_MODEL", "base")
+    print("downloading Whisper model", name)
+    download_model(name)
+
+
 def main():
+    fetch_whisper()
     for package in PACKAGES:
         unpack(*package)
     url, target = MODEL

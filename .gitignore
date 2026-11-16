@@ -181,3 +181,5 @@ deephire/static/vendor/
 .impeccable/live/
 .impeccable/questions/
 .impeccable/review/
+# local models downloaded by scripts/fetch_vendor.py (Kokoro voice)
+deephire/models/

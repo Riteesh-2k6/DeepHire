@@ -206,7 +206,8 @@ p { margin: 0; }
 .take-line { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
   padding-top: 1rem; border-top: 1px solid rgba(20, 22, 26, .14); }
 .question { font: 500 clamp(1.15rem, 1.6vw, 1.5rem)/1.4 var(--font-ui); letter-spacing: -.005em; text-wrap: pretty; }
-.question-hint { color: var(--ink-3); font-size: .875rem; }
+.question-hint { color: var(--ink-3); font-size: .875rem; margin-top: .5rem;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
 .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; counter-reset: step; }
 .step { display: grid; grid-template-columns: 1.75rem 1fr; gap: .25rem .75rem; }
@@ -247,6 +248,17 @@ p { margin: 0; }
 .controls .key.primary { min-height: 50px; padding-inline: 1.4rem; font-size: 1.0625rem; }
 .room[data-levels="hidden"] .readouts { display: none; }
 .room-error { color: var(--hot); font-weight: 600; font-size: .9375rem; }
+
+.optional { font: 500 .75rem var(--font-ui); color: var(--ink-3); margin-left: .35rem; letter-spacing: 0; }
+.tips { margin: .25rem 0 0; padding-left: 1.1rem; display: grid; gap: .3rem; font-size: .9375rem; color: var(--ink); list-style: disc; }
+.tips li::marker { color: var(--ink-3); }
+.tips .pending, .tips .error { list-style: none; margin-left: -1.1rem; }
+.tips .pending { color: var(--ink-3); }
+.tips .error { color: var(--hot); }
+#quick-take { display: grid; gap: 1rem; }
+#quick-take .feedback { background: var(--plate-lo); }
+#qt-content { display: grid; gap: .75rem; }
+.qt-group { display: grid; gap: .5rem; }   /* the existing well, not a paper card on the plate */
 
 /* ---------- report: the track sheet ---------- */
 .report { max-width: 1180px; margin: 0 auto; padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 3vw, 2rem) 5rem; display: grid; gap: 2rem; }
@@ -338,6 +350,13 @@ dl.delivery dd small { font: .8125rem var(--font-ui); color: var(--ink-3); }
 .skeleton { height: .9rem; border-radius: 4px; background: linear-gradient(90deg, #e9e9e5, #f4f4f1, #e9e9e5); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
+.follow-up { border-top: 1px solid var(--rule); padding-top: 1rem; display: grid; gap: .75rem; }
+.follow-up + .slot-grade { border-top: 1px solid var(--rule); padding-top: 1rem; }
+.follow-up-q { font-size: 1.0625rem; line-height: 1.45; max-width: 75ch; }
+.probes { color: var(--ink-3); font-size: .875rem; }
+.lane.sub { min-height: 40px; border-top: 1px dashed var(--rule); }
+.lane.sub .take-label { font: 500 .8125rem var(--font-legend); color: var(--ink-2); letter-spacing: .02em; }
+
 .method { font-size: .9375rem; color: var(--ink-2); max-width: 75ch; display: grid; gap: .6rem; }
 .method h2 { font-size: 1.25rem; color: var(--ink); }
 .method ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .35rem; }
@@ -359,6 +378,9 @@ dl.delivery dd small { font: .8125rem var(--font-ui); color: var(--ink-3); }
   .lane .lane-end .wpm { display: none; }
   table.sheet th:nth-child(n+3):nth-child(-n+7), table.sheet td:nth-child(n+3):nth-child(-n+7) { display: none; }
   .sheet th, .sheet td { padding-inline: .45rem; }
+  dl.delivery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  dl.delivery div { align-content: start; }
+  dl.delivery dd small { display: block; }
   table.sheet { table-layout: fixed; font-size: .875rem; }   /* the question column takes what is left */
   .sheet th:nth-child(1) { width: 2.6rem; }
   .sheet th:nth-child(8) { width: 4.4rem; }

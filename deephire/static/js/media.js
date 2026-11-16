@@ -76,20 +76,26 @@ export function startRecording(stream) {
   const audio = new MediaRecorder(new MediaStream(stream.getAudioTracks()), {
     mimeType: pick(['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus']),
   });
-  const collect = rec => new Promise(resolve => {
+  // A recorder can stop or error on its own (say the camera is unplugged mid-answer); keep what it got.
+  const collect = rec => {
     const parts = [];
+    let finish;
+    const blob = new Promise(resolve => { finish = () => resolve(new Blob(parts, { type: rec.mimeType })); });
     rec.ondataavailable = e => e.data.size && parts.push(e.data);
-    rec.onstop = () => resolve(new Blob(parts, { type: rec.mimeType }));
-  });
-  const done = Promise.all([collect(replay), collect(audio)]);
+    rec.onstop = rec.onerror = () => finish();
+    return { blob, finish };
+  };
+  const r1 = collect(replay), r2 = collect(audio);
   replay.start(1000);
   audio.start(1000);
   const started = performance.now();
   return {
     async stop() {
-      replay.stop();
-      audio.stop();
-      const [video, voice] = await done;
+      for (const rec of [replay, audio]) {
+        try { if (rec.state !== 'inactive') rec.stop(); } catch { /* already stopped */ }
+      }
+      setTimeout(() => { r1.finish(); r2.finish(); }, 3000);   // never wait forever for onstop
+      const [video, voice] = await Promise.all([r1.blob, r2.blob]);
       return { video, voice, duration: (performance.now() - started) / 1000 };
     },
   };

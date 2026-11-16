@@ -32,7 +32,7 @@
       </svg>
       <p class="legend dial-caption" id="dial-text">Talkback</p>
       <p class="status" id="status">Sound check</p>
-      <p class="status-sub" id="status-sub">Three quick steps, then the first question.</p>
+      <p class="status-sub" id="status-sub">A few quick steps, then the first question.</p>
     </div>
 
     <!-- sound check -->
@@ -52,6 +52,12 @@
           <span class="lamp" id="chk-face"><span class="led"></span><span>Face tracking</span></span>
         </p>
       </li>
+      <li class="step" id="step-setup" aria-disabled="true">
+        <h2>Check my setup <span class="optional">optional</span></h2>
+        <p>One still frame goes to the vision model on this computer and is not saved. It comments on light, framing and background, never on you. It's a small model, so treat its tips as suggestions; it can be wrong.</p>
+        <div><button class="key" id="setup-check" disabled><span class="led"></span>Check my setup</button></div>
+        <ul class="tips" id="setup-tips" hidden></ul>
+      </li>
       <li class="step" id="step-calibrate" aria-disabled="true">
         <h2>Look into the lens</h2>
         <p>Three seconds, looking straight at your camera and staying quiet. This sets your own "looking at the camera" and your room's background noise.</p>
@@ -69,6 +75,13 @@
       <p class="take-line"><span class="legend" id="take-no">Question 1 of {{ session.answers|length }}</span><span class="legend num" id="take-time">0:00 / 3:00</span></p>
       <p class="question" id="question"></p>
       <p class="question-hint" id="question-hint"></p>
+    </div>
+
+    <!-- practice mode: a quick take between questions -->
+    <div id="quick-take" hidden>
+      <p class="take-line"><span class="legend" id="qt-title">Quick take</span></p>
+      <div id="qt-delivery" style="display:grid;gap:.75rem"></div>
+      <div class="qt-content" id="qt-content"></div>
     </div>
     <p class="room-error" id="room-error" role="alert" hidden></p>
   </section>

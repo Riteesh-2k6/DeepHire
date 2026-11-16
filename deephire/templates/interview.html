@@ -45,6 +45,24 @@
         {% endfor %}
       </div>
     </fieldset>
+
+    <fieldset class="sheet-row">
+      <legend class="legend">Follow-ups</legend>
+      <div class="keys">
+        <label><input type="radio" name="follow_ups" value="on" checked><span class="key"><span class="led"></span>On</span></label>
+        <label><input type="radio" name="follow_ups" value="off"><span class="key"><span class="led"></span>Off</span></label>
+      </div>
+      <p class="hint">After each answer the interviewer can ask one follow-up about something you said, as a real interviewer would.</p>
+    </fieldset>
+
+    <fieldset class="sheet-row">
+      <legend class="legend">Feedback</legend>
+      <div class="keys">
+        <label><input type="radio" name="mode" value="mock" checked><span class="key"><span class="led"></span>Mock <small>all at the end</small></span></label>
+        <label><input type="radio" name="mode" value="practice"><span class="key"><span class="led"></span>Practice <small>after each question</small></span></label>
+      </div>
+      <p class="hint">Mock runs straight through, like the real thing. Practice pauses after each question with a quick take before you move on.</p>
+    </fieldset>
   </form>
 
   <div class="setup-go">
@@ -79,7 +97,8 @@
       const r = await fetch('/submit-interview-preferences', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company: value('company'), domain: value('domain'),
-                               difficulty: value('difficulty'), count: Number(value('count')) }),
+                               difficulty: value('difficulty'), count: Number(value('count')),
+                               follow_ups: value('follow_ups') === 'on', mode: value('mode') }),
       });
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'The server refused that session.');

@@ -29,8 +29,22 @@ CASES = [("off-topic trie", TRIE, OFF_TOPIC, lambda s: s <= 3),
          ("on-topic trie", TRIE, ON_TOPIC_TRIE, lambda s: s >= 6)]
 
 
-def main(rounds=1):
+def check_follow_ups():
+    """A real answer gets a short single follow-up inside the interview's deadline."""
     failures = 0
+    for name, question, transcript in [("trie follow-up", TRIE, ON_TOPIC_TRIE), ("off-topic follow-up", TRIE, OFF_TOPIC)]:
+        t = time.time()
+        f = answer_evaluator.follow_up(question, transcript, "Python", "Medium")
+        took = time.time() - t
+        passed = bool(f) and f["question"].count("?") == 1 and len(f["question"].split()) <= 35 \
+            and took < answer_evaluator.FOLLOW_UP_TIMEOUT_S
+        failures += not passed
+        print(f"{'PASS' if passed else 'FAIL'}  {name:18} ({took:.0f}s)  {f}")
+    return failures
+
+
+def main(rounds=1):
+    failures = check_follow_ups()
     for _ in range(rounds):
         for name, question, transcript, ok in CASES:
             t = time.time()

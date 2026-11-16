@@ -30,24 +30,33 @@ const inRange = (value, [lo, hi]) => value == null ? '' : value >= lo && value <
 // ---------- the multitrack plot ----------
 function lanes(data) {
   const answered = data.answers.filter(a => a.delivery);
-  const maxT = Math.max(30, ...answered.map(a => a.delivery.duration_s));
+  const followed = answered.map(a => a.follow_up).filter(f => f?.delivery);
+  const maxT = Math.max(30, ...[...answered, ...followed].map(t => t.delivery.duration_s));
   const pct = t => `${(100 * t / maxT).toFixed(3)}%`;
-  const rows = data.answers.map((a, i) => {
+  const trackFor = (take, emptyText) => {
     const track = h('div', { class: 'track' });
-    if (!a.delivery) track.append(h('span', { class: 'empty' }, 'Not answered'));
-    else if (!a.words?.length) track.append(h('span', { class: 'empty' }, 'No speech picked up'));
-    else a.words.forEach((w, j) => {
-      const next = a.words[j + 1];
+    if (!take?.delivery) track.append(h('span', { class: 'empty' }, emptyText));
+    else if (!take.words?.length) track.append(h('span', { class: 'empty' }, 'No speech picked up'));
+    else take.words.forEach((w, j) => {
+      const next = take.words[j + 1];
       track.append(h('span', { class: /^(um+|uh+|uhm|er|erm|ah|hmm?|mm)\W*$/i.test(w.word) ? 'w filler' : 'w', style: `left:${pct(w.start)};width:${pct(w.end - w.start)}`, title: w.word }));
       if (next && next.start - w.end >= data.pause_s) {
         track.append(h('span', { class: 'gap', style: `left:${pct(w.end)};width:${pct(next.start - w.end)}` }, h('span', {}, `${(next.start - w.end).toFixed(1)}s`)));
       }
     });
+    return track;
+  };
+  const rows = data.answers.flatMap((a, i) => {
     const score = a.grade?.final_score;
-    return h('a', { class: 'lane', href: `#take-${i + 1}` },
-      h('span', { class: 'take-label' }, `Take ${i + 1}`), track,
+    const lane = h('a', { class: 'lane', href: `#take-${i + 1}` },
+      h('span', { class: 'take-label' }, `Take ${i + 1}`), trackFor(a, 'Not answered'),
       h('span', { class: 'lane-end' }, score != null ? `${score.toFixed(1)}/10` : a.status === 'grading' ? '…' : dash,
         a.delivery?.wpm ? h('span', { class: 'wpm' }, ` · ${a.delivery.wpm} wpm`) : null));
+    const f = a.follow_up;
+    if (!f) return [lane];
+    return [lane, h('a', { class: 'lane sub', href: `#take-${i + 1}` },
+      h('span', { class: 'take-label' }, 'Follow-up'), trackFor(f, 'Skipped'),
+      h('span', { class: 'lane-end' }, f.delivery?.wpm ? h('span', { class: 'wpm' }, `${f.delivery.wpm} wpm`) : dash))];
   });
   const ticks = [];
   for (let t = 0; t <= maxT; t += maxT > 120 ? 30 : 15) ticks.push(h('span', { style: `left:${pct(t)}` }, fmt(t)));
@@ -64,7 +73,7 @@ function totals(data) {
   return [
     cell('Content', s.content_score?.toFixed(1), '/ 10', `graded ${s.graded} of ${s.answered} answers`),
     cell('Pace', s.wpm, 'wpm', `guide ${r.wpm[0]}–${r.wpm[1]}`, inRange(s.wpm, r.wpm)),
-    cell('Pauses', s.answered ? s.pause_count : null, '', `of ${data.pause_s} s or more, all answers`),
+    cell('Pauses', s.answered ? s.pause_count : null, '', `of ${data.pause_s} s or more, all answers${s.follow_ups ? ' and follow-ups' : ''}`),
     cell('Fillers', s.fillers_per_min, '/ min', 'a lower bound', inRange(s.fillers_per_min, r.fillers_per_min)),
     cell('On camera', s.camera_pct, '%', s.camera_pct == null ? 'no camera data' : `rule of thumb ${r.camera_pct[0]}%+`, inRange(s.camera_pct, r.camera_pct)),
   ];
@@ -153,20 +162,40 @@ function take(a, i, data) {
       h('header', { class: 'take-head' }, h('h2', {}, `Take ${i + 1}`), h('span', { class: 'slot-state' })),
       h('p', { class: 'take-q' }, a.question),
       h('div', { class: 'take-grid' }, h('div', { class: 'replay' }), h('div', { class: 'slot-transcript' })),
-      h('div', { class: 'slot-delivery' }), h('div', { class: 'slot-grade', style: 'display:grid;gap:1rem' }));
+      h('div', { class: 'slot-delivery' }), a.follow_up ? followUpBlock(a, i, data) : null,
+      h('div', { class: 'slot-grade', style: 'display:grid;gap:1rem' }));
     takeEls.set(i, el);
-    if (a.delivery) replay(el.querySelector('.replay'), i);   // once: re-rendering would restart playback
+    if (a.delivery) replay(el.querySelector('.replay'), i, `deephire-take-${i + 1}.webm`);   // once: re-rendering would restart playback
     else el.querySelector('.replay').replaceChildren(h('p', { class: 'absent well' }, 'Skipped, nothing recorded.'));
   }
   el.querySelector('.slot-state').replaceChildren(lamp(a.status));
   el.querySelector('.slot-transcript').replaceChildren(a.delivery ? transcript(a, data.pause_s) : h('p', { class: 'transcript-note' }, 'This question was skipped.'));
   el.querySelector('.slot-delivery').replaceChildren(deliveryList(a, data));
-  el.querySelector('.slot-grade').replaceChildren(...[grading(a, i, data)].flat().filter(Boolean));
+  el.querySelector('.slot-grade').replaceChildren(
+    ...(a.follow_up?.delivery ? [h('span', { class: 'legend' }, 'Content, whole exchange')] : []),
+    ...[grading(a, i, data)].flat().filter(Boolean));
   return el;
 }
 
-async function replay(slot, i) {
-  const blob = await loadTake(id, i);
+// The follow-up is built once: it doesn't change after the interview, and rebuilding would restart its replay.
+function followUpBlock(a, i, data) {
+  const f = a.follow_up;
+  const block = h('div', { class: 'follow-up' },
+    h('span', { class: 'legend' }, 'Follow-up'),
+    h('p', { class: 'follow-up-q' }, f.question),
+    f.probes ? h('p', { class: 'probes' }, `Probing: ${f.probes}`) : null);
+  if (!f.delivery) {
+    block.append(h('p', { class: 'transcript-note' }, 'Skipped, nothing recorded.'));
+    return block;
+  }
+  const slot = h('div', { class: 'replay' });
+  block.append(h('div', { class: 'take-grid' }, slot, transcript(f, data.pause_s)), deliveryList(f, data));
+  replay(slot, `${i}f`, `deephire-take-${i + 1}-follow-up.webm`);
+  return block;
+}
+
+async function replay(slot, key, filename) {
+  const blob = await loadTake(id, key);
   if (!blob) {
     slot.replaceChildren(h('p', { class: 'absent well' }, 'No recording on this device. Recordings stay in the browser that made them.'));
     return;
@@ -175,12 +204,12 @@ async function replay(slot, i) {
   slot.replaceChildren(
     h('video', { src: url, controls: '', preload: 'metadata', playsinline: '' }),
     h('div', { class: 'replay-actions' },
-      h('a', { class: 'key', href: url, download: `deephire-take-${i + 1}.webm` }, 'Download'),
+      h('a', { class: 'key', href: url, download: filename }, 'Download'),
       h('button', { class: 'key quiet', onclick: async () => {
         if (!confirm('Delete this recording from this browser? This cannot be undone.')) return;
-        await deleteTake(id, i);
+        await deleteTake(id, key);
         URL.revokeObjectURL(url);
-        replay(slot, i);
+        replay(slot, key, filename);
       } }, 'Delete recording')));
 }
 

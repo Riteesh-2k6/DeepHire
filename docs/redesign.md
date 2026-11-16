@@ -183,6 +183,32 @@ GET /api/report/<id> ◄── report page polls until grading is done
 - A per-answer quick take between questions in "practice" mode, and a "mock" mode that saves feedback for the end.
 - The opt-in VLM camera check: lighting, framing, eye line and background, from one frame, never emotions. This needs a local vision model (for example a small Gemma or Qwen-VL GGUF with its `mmproj` file, about 3 GB) added to llama-swap.
 
+*M2 build notes (16 Nov 2026).*
+
+- **Follow-up questions:**
+  - Right after a main answer is transcribed, the local LLM writes one follow-up of 30 words or fewer that probes the weakest or vaguest part of the answer.
+  - The interviewer shows "Thinking" while it writes. It has a 45 s deadline; past that, or on any failure, the interview simply moves on.
+  - The rubric grades the whole exchange (main answer plus follow-up answer), so each question still gets one score.
+  - Follow-ups can be switched off on the setup page.
+- **Practice and mock mode:**
+  - Mock (the default) holds all feedback for the report, like a real interview.
+  - Practice shows a quick take after each question: delivery facts at once, and the content score when grading finishes. You move on when ready.
+- **Camera check:**
+  - At the sound check, one still frame goes to a local vision model: Qwen2.5-VL-3B, about 2.8 GB. It returns two to four setup tips on lighting, framing, camera height and background.
+  - The prompt forbids comments on the person, and a word filter in code drops any line about emotions or appearance. The frame is never stored.
+  - The model runs on the CPU, in a llama-swap group with `swap: false`, so it runs beside gpt-oss-20b instead of swapping it out. Swapping hung once on this laptop: llama-swap got stuck "stopping" gpt-oss-20b and every request queued behind it.
+  - A check takes about a minute while the model loads, then about 5 s.
+  - **Tip quality is mixed and unverified on a real face.** It was tested on a synthetic frame with no person in it. It named the bright window, but sometimes gave contradictory advice. The room labels the tips as suggestions from a small model that can be wrong.
+- **What testing changed** (a fake camera and microphone, on a laptop busy with other jobs):
+  - The follow-up 45 s limit is now a wall-clock deadline. A socket timeout alone can be outlasted by a server that trickles bytes while it loads a model.
+  - The room warms up Whisper and gpt-oss-20b as soon as it opens, so the first answer doesn't wait on a cold load of about 2 minutes.
+  - Whisper runs with 4 threads (`WHISPER_THREADS`). With one thread per core, 13 s of speech took about 50 s when other programs held some cores; with 4 threads it took about 16 s, and about 1–2 s on an idle machine.
+  - Whisper loads from the local cache only. faster-whisper had been checking Hugging Face for a newer model version on every start.
+  - Robustness fixes:
+    - A camera that stops mid-session switches the room to "no camera numbers" instead of crashing calibration.
+    - A recorder that stops on its own no longer freezes the room.
+    - Session files are read under the same lock as writes: on Windows, `os.replace` fails while another thread has the file open.
+
 **M3: coding and the front door.**
 - A code pad for coding questions.
 - Landing page redesign, removing the placeholder testimonials or replacing them with real ones.

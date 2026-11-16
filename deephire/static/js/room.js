@@ -13,7 +13,7 @@ const VOICE_FLOOR = 0.012;    // calibration knob: quietest RMS level counted as
 
 let stream = null, meter = null, readFace = null, base = null, noise = 0;
 let mode = 'check';           // check | speaking | reading | listening | saving | error | done
-let index = 0, recording = null, startedAt = 0;
+let index = 0, recording = null, startedAt = 0, part = 'main';   // part: main | follow_up
 let counts = { samples: 0, face: 0, facing: 0 }, talkMs = 0, silenceMs = 0;
 let kick = 0, needle = 0, lastFrame;
 
@@ -30,6 +30,7 @@ function controls({ primary = null, skip = false, end = true, busy = false } = {
   if (primary) $('done').textContent = primary;
   $('done').disabled = busy;
   $('skip').hidden = !skip;
+  $('skip').textContent = part === 'follow_up' ? 'Skip follow-up' : 'Skip question';
   $('skip').disabled = busy;
   $('end').hidden = !end;
   $('end').disabled = busy && mode === 'saving';
@@ -107,6 +108,9 @@ $('devices').addEventListener('click', async () => {
     $('cam-empty').hidden = false;
     $('cam-empty').textContent = 'Camera stopped. Is another app using it?';
     lamp($('chk-cam'), 'error', 'Camera stopped');
+    $('calibrate').disabled = true;
+    $('setup-check').disabled = true;
+    if (mode === 'check') readyToStart('The camera stopped, so the report leaves out the camera numbers.');
   });
   meter = micMeter(stream);
   await meter.resume();
@@ -114,6 +118,7 @@ $('devices').addEventListener('click', async () => {
   lamp($('chk-cam'), hasVideo ? 'ok' : 'error', hasVideo ? 'Camera' : 'No camera');
   lamp($('chk-mic'), 'ok', 'Microphone');
   markDone('step-devices');
+  if (hasVideo) enable('step-setup', 'setup-check');
 
   if (!hasVideo) { lamp($('chk-face'), 'error', 'Face tracking off'); readyToStart('Without a camera, the report leaves out the camera numbers.'); return; }
   lamp($('chk-face'), 'busy', 'Loading face tracking…');
@@ -133,7 +138,7 @@ $('calibrate').addEventListener('click', async () => {
   const frames = [], levels = [];
   const cue = $('cue');
   cue.hidden = false;
-  for (let t = 0; t < 30; t++) {                       // 3 s at 10 per second
+  for (let t = 0; t < 30 && readFace; t++) {           // 3 s at 10 per second; stops if the camera does
     cue.textContent = `Look into the lens · ${3 - Math.floor(t / 10)}`;
     frames.push(readFace(cam));
     levels.push(meter.level());
@@ -142,7 +147,8 @@ $('calibrate').addEventListener('click', async () => {
   cue.hidden = true;
   levels.sort((a, b) => a - b);
   noise = levels[Math.floor(levels.length / 2)];
-  base = baseline(frames);
+  base = readFace ? baseline(frames) : null;
+  if (!readFace) return;                               // the camera stopped mid-calibration; already handled
   if (!base) {
     $('calibrate').disabled = false;
     showError("Couldn't find your face in those three seconds. Put the light in front of you and try again, or start without camera numbers.");
@@ -159,7 +165,44 @@ function readyToStart(note) {
   if (note) $('step-start').querySelector('p').textContent = note;
 }
 
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const busy = (tag, text) => {   // the system's in-progress signal: an amber lamp
+  const e = el(tag, 'take-state'), lampEl = el('span', 'lamp');
+  lampEl.dataset.state = 'busy';
+  lampEl.append(el('span', 'led'));
+  e.append(lampEl, text);
+  return e;
+};
+
+// ---------- optional camera-setup check: one frame to the local vision model ----------
+$('setup-check').addEventListener('click', async () => {
+  const button = $('setup-check'), list = $('setup-tips');
+  button.disabled = true;
+  list.hidden = false;
+  list.replaceChildren(busy('li', 'Looking at your setup… the first check can take a minute while the model loads.'));
+  list.firstChild.classList.add('pending');
+  const canvas = document.createElement('canvas');
+  canvas.width = cam.videoWidth;
+  canvas.height = cam.videoHeight;
+  canvas.getContext('2d').drawImage(cam, 0, 0);
+  const frame = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.85));
+  const form = new FormData();
+  form.append('frame', frame, 'frame.jpg');
+  try {
+    const r = await fetch('/api/camera-check', { method: 'POST', body: form });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || `The server answered ${r.status}.`);
+    list.replaceChildren(...data.tips.map(t => el('li', '', t)));
+    markDone('step-setup');
+  } catch (err) {
+    list.replaceChildren(el('li', 'error', err.message));
+  }
+  button.disabled = false;
+  button.lastChild.textContent = 'Check again';
+});
+
 $('start').addEventListener('click', () => {
+  fetch('/api/warmup', { method: 'POST' }).catch(() => {});  // reload the grading model if the setup check swapped it out
   $('steps').hidden = true;
   $('live').hidden = false;
   room.dataset.phase = 'live';
@@ -167,20 +210,25 @@ $('start').addEventListener('click', () => {
 });
 
 // ---------- the interview ----------
-async function askQuestion(i) {
-  index = i;
-  const q = session.answers[i].question;
-  $('take-no').textContent = `Question ${i + 1} of ${total}`;
+const takes = {};                      // index -> { main: delivery, follow_up: delivery }
+const takeKey = () => (part === 'main' ? index : `${index}f`);
+
+function showQuestion(text, hint) {
+  $('quick-take').hidden = true;
+  $('live').hidden = false;
   $('take-time').textContent = `0:00 / ${fmt(MAX_ANSWER_S)}`;
-  $('question').textContent = q;
-  $('question-hint').textContent = /\b(write|implement|code)\b|function/i.test(q)
-    ? 'Coding question: talk through your approach — the data structures, the steps, and the complexity.' : '';
+  $('question').textContent = text;
+  $('question-hint').textContent = hint;
   showError('');
+}
+
+async function say(text, sub) {
+  const mine = `${index}${part}`;
   mode = 'speaking';
-  setStatus('Interviewer speaking', 'The question is on screen too.');
+  setStatus('Interviewer speaking', sub);
   controls({ primary: 'Answer now', skip: true });
-  const spoke = await speak(q, () => { kick = 1; });
-  if (mode !== 'speaking' || index !== i) return;      // skipped or ended while speaking
+  const spoke = await speak(text, () => { kick = 1; });
+  if (mode !== 'speaking' || `${index}${part}` !== mine) return;   // skipped or ended while speaking
   if (!spoke) {
     mode = 'reading';
     setStatus('Read the question', 'No local voice was found on this computer. Start when you are ready.');
@@ -188,6 +236,23 @@ async function askQuestion(i) {
     return;
   }
   beginAnswer();
+}
+
+function askQuestion(i) {
+  index = i;
+  part = 'main';
+  const q = session.answers[i].question;
+  $('take-no').textContent = `Question ${i + 1} of ${total}`;
+  showQuestion(q, /\b(write|implement|code)\b|function/i.test(q)
+    ? 'Coding question: talk through your approach — the data structures, the steps, and the complexity.' : '');
+  say(q, 'The question is on screen too.');
+}
+
+function askFollowUp(q) {
+  part = 'follow_up';
+  $('take-no').textContent = `Question ${index + 1} of ${total} · Follow-up`;
+  showQuestion(q, `You were asked: ${session.answers[index].question}`);
+  say(q, 'A follow-up about your answer.');
 }
 
 function beginAnswer() {
@@ -206,51 +271,134 @@ async function finishAnswer(thenEnd = false) {
   if (mode !== 'listening') return;
   mode = 'saving';
   $('dial-text').textContent = 'Talkback';
-  setStatus('Saving take', 'Transcribing on this computer…');
+  const thinking = part === 'main' && session.follow_ups && !thenEnd;
+  setStatus(thinking ? 'Thinking' : 'Saving take',
+    thinking ? 'Transcribing. A follow-up may come next.' : 'Transcribing on this computer…');
   controls({ primary: 'Done answering', skip: true, busy: true });
-  const { video, voice, duration } = await recording.stop();
-  recording = null;
-  try { await saveTake(session.session_id, index, video); }
-  catch (err) { console.warn('replay not saved', err); }     // storage blocked or full: keep going
+  let video, voice, duration;
+  try {
+    ({ video, voice, duration } = await recording.stop());
+  } catch (err) {
+    console.error(err);
+    mode = 'error';
+    setStatus('That take was not saved', 'The recorder stopped unexpectedly. You can answer again or move on.');
+    controls({ primary: 'Answer again', skip: true });
+    return;
+  } finally {
+    recording = null;
+  }
+  // The replay is a nicety: a blocked, full or slow browser store must not hold up the interview.
+  await Promise.race([saveTake(session.session_id, takeKey(), video), new Promise(r => setTimeout(r, 5000))])
+    .catch(err => console.warn('replay not saved', err));
 
   const form = new FormData();
   form.append('session_id', session.session_id);
   form.append('index', index);
+  form.append('part', part);
   form.append('duration', duration.toFixed(2));
   form.append('face', JSON.stringify(base ? counts : { samples: 0 }));
   form.append('audio', voice, 'answer.webm');
+  let data;
   try {
-    const r = await fetch('/api/answer', { method: 'POST', body: form });
-    const data = await r.json().catch(() => ({}));
+    const r = await fetch('/api/answer', { method: 'POST', body: form, signal: AbortSignal.timeout(180000) });
+    data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.error || `The server answered ${r.status}.`);
   } catch (err) {
     mode = 'error';
     setStatus('That take was not saved', 'You can answer again or move on.');
-    showError(`${err.message} Is the DeepHire server still running?`);
+    showError(`${err.name === 'TimeoutError' ? 'The server took too long.' : err.message} Is the DeepHire server still running?`);
     controls({ primary: 'Answer again', skip: true });
     return;
   }
-  thenEnd ? finish() : next();
+  takes[index] = { ...takes[index], [part]: data.delivery };
+  if (thenEnd) return finish();
+  if (part === 'main' && data.follow_up) return askFollowUp(data.follow_up.question);
+  afterQuestion();
 }
 
+function afterQuestion() { session.mode === 'practice' && takes[index] ? quickTake(index) : next(); }
 function next() { index + 1 < total ? askQuestion(index + 1) : finish(); }
 
-function finish() {
+async function finish() {
   mode = 'done';
   stopSpeaking();
   stream?.getTracks().forEach(t => t.stop());
+  await fetch(`/api/finish/${session.session_id}`, { method: 'POST' }).catch(() => {});  // grade any open exchange
   location.href = `/report?session=${session.session_id}`;
+}
+
+// ---------- practice mode: a quick take between questions ----------
+function quickTake(i) {
+  mode = 'quick-take';
+  $('live').hidden = true;
+  $('quick-take').hidden = false;
+  $('qt-title').textContent = `Quick take · Question ${i + 1} of ${total}`;
+  setStatus('Quick take', 'Have a look, then move on when you are ready.');
+  controls({ primary: i + 1 < total ? 'Next question' : 'See the track sheet' });
+
+  const item = (label, value, note) => {
+    const d = el('div');
+    const dd = el('dd', '', value ?? '—');
+    if (note) dd.append(el('small', '', ` ${note}`));
+    d.append(el('dt', 'legend', label), dd);
+    return d;
+  };
+  const blocks = [];
+  for (const key of ['main', 'follow_up']) {
+    const d = takes[i][key];
+    if (!d) continue;
+    const dl = el('dl', 'delivery');
+    dl.append(item('Pace', d.wpm, d.wpm ? 'wpm (guide 120–160)' : 'too short to measure'),
+      item('Pauses', d.pause_count, d.pause_count ? `longest ${d.longest_pause_s} s` : ''),
+      item('Fillers', d.filler_count, d.fillers_per_min != null ? `${d.fillers_per_min}/min` : ''),
+      item('On camera', d.camera_pct != null ? `${d.camera_pct}%` : null, d.camera_pct == null ? 'no camera data' : ''));
+    if (key === 'follow_up') {   // the legend belongs to its list, not floating between the two
+      const group = el('div', 'qt-group');
+      group.append(el('span', 'legend', 'Follow-up'), dl);
+      blocks.push(group);
+    } else blocks.push(dl);
+  }
+  $('qt-delivery').replaceChildren(...blocks);
+  pollGrade(i);
+}
+
+async function pollGrade(i) {
+  const box = $('qt-content');
+  box.replaceChildren(busy('p', 'Grading the content on this computer. You can move on; it will be in the track sheet.'));
+  while (mode === 'quick-take' && index === i) {
+    try {
+      const data = await (await fetch(`/api/report/${session.session_id}`)).json();
+      const a = data.answers[i];
+      if (a.status === 'graded') {
+        const facts = el('dl', 'delivery');
+        const d = el('div'), dd = el('dd', '', a.grade.final_score.toFixed(1));
+        dd.append(el('small', '', ' / 10, whole exchange'));
+        d.append(el('dt', 'legend', 'Content'), dd);
+        facts.append(d);
+        const fb = el('p', 'feedback');
+        fb.append(el('strong', '', 'What to change: '), a.grade.feedback || '');
+        box.replaceChildren(facts, fb);
+        return;
+      }
+      if (a.status === 'error') { box.replaceChildren(el('p', 'take-error', a.grade?.error || 'Grading failed.')); return; }
+    } catch { /* server busy: try again */ }
+    await new Promise(r => setTimeout(r, 3000));
+  }
 }
 
 $('done').addEventListener('click', () => {
   if (mode === 'speaking' || mode === 'reading' || mode === 'error') beginAnswer();
   else if (mode === 'listening') finishAnswer();
+  else if (mode === 'quick-take') next();
 });
 
 $('skip').addEventListener('click', async () => {
   if (mode === 'listening') { mode = 'skipping'; await recording.stop(); recording = null; }
   stopSpeaking();
-  next();
+  if (part === 'follow_up') {
+    await fetch(`/api/skip-follow-up/${session.session_id}/${index}`, { method: 'POST' }).catch(() => {});
+    afterQuestion();
+  } else next();
 });
 
 $('end').addEventListener('click', () => {
@@ -274,3 +422,5 @@ addEventListener('beforeunload', e => { if (mode === 'listening' || mode === 'sa
 
 controls({ end: false });
 requestAnimationFrame(animate);
+// Load Whisper and the grading model while the student does the sound check.
+fetch('/api/warmup', { method: 'POST' }).catch(() => {});
