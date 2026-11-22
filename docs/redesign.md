@@ -141,7 +141,7 @@ GET /api/report/<id> ◄── report page polls until grading is done
   - Your llama-swap notes measured about 12.7 tokens/s writing. A graded answer is about 350 tokens, so roughly 30 s.
   - When I tested today, another llama-server was also loaded, and RAM and VRAM were nearly full. Under that contention I measured 2.6 tokens/s, about 2.5 minutes per answer.
   - Grading runs one answer at a time in the background while you keep answering. So the wait at the end is roughly the last answer's grading, not all of them.
-- **A 20B local model grades less reliably than a large hosted one.** The scores haven't been checked against human graders, and the report says so.
+- **A 20B local model grades less reliably than a large hosted one.** Agreement with a human grader is measured by `scripts/grader_agreement.py` (M4) but waits on the hand grades, and the report says the scores are unverified.
 - **Fillers are undercounted.** Whisper tends to tidy up disfluencies. We prompt it with filler-heavy text to keep them; in my test "Um" and "Uh" survived. The count is still a lower bound and is labelled that way.
 - **Pace ranges are rules of thumb.** About 120–160 words a minute is a common guide for clear speech, not a measured standard.
 - **Head and eye direction is approximate.** Glasses, low light and a camera far to the side reduce accuracy. Calibration handles most camera placements.
@@ -225,6 +225,14 @@ GET /api/report/<id> ◄── report page polls until grading is done
 - Fill the question-bank gaps (Netflix has 0 questions, Meta 45).
 - Grade 30–50 answers by hand, compare them with the local LLM's scores, and publish the agreement in the README.
 - Optional hosted models for people without a GPU, through the same `LLM_BASE_URL` setting.
+
+*M4 grader check (22 Nov 2026).*
+
+- `scripts/grader_agreement.py` grades 42 fixed answers (`eval/grader_agreement/`): 5 saved transcripts and 37 written for the check, labelled good, partial, weak, off-topic and empty. Hand grades go in a CSV, or one at a time with `--by-hand`, which hides the labels and model scores. Model grades are cached per grader version (a hash of `answer_evaluator.py` and the model name).
+- The 9/10 off-topic failure did not come back: all 12 off-topic and 5 empty answers scored 0, including an adjacent-topic answer (a BST described for a trie question) and one asking for full marks. So no off-topic pre-check was added.
+- It found a different failure: once in about 49 calls, gpt-oss-20b left the rubric scores out, and the old code counted the missing scores as 0, so a good answer showed 0/10. A missing or non-numeric score now raises, `grade()` retries once, then reports an error (the report offers *Grade again*).
+- Graded twice, 27 of 41 answers got identical scores and 39 were within 1 point. A partial answer with an off-by-one bug scored 9.3.
+- Agreement with a human: waiting for the hand grades.
 
 All page design (setup, room, report, and later the landing page) is done with the `/impeccable` design skill.
 

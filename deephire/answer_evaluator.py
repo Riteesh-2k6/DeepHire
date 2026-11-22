@@ -53,14 +53,17 @@ OFF_TOPIC_CAP = 2.0  # an answer to a different question can't score above this 
 
 
 def with_final_score(result):
-    """Clamp each score to 0-10 (or the off-topic cap) and add the weighted content score."""
+    """Clamp each score to 0-10 (or the off-topic cap) and add the weighted content score.
+
+    Raises ValueError if a criterion has no numeric score: a score the model left out must not read as 0.
+    """
     ceiling = OFF_TOPIC_CAP if result.get("on_topic") is False else 10.0
     for key in CRITERIA:
-        item = result.get(key) or {}
+        item = result.get(key)
         try:
-            score = float(item.get("score", 0))
-        except (TypeError, ValueError):
-            score = 0.0
+            score = float(item["score"])
+        except (TypeError, KeyError, ValueError) as e:
+            raise ValueError(f"the grade has no score for {key}") from e
         result[key] = {"score": max(0.0, min(ceiling, score)), "justification": str(item.get("justification", ""))}
     result["final_score"] = round(sum(result[k]["score"] * w for k, w in RUBRIC.items()), 1)
     return result
@@ -90,13 +93,14 @@ def grade(question, transcript, domain="", difficulty="", post=requests.post):
     user = f"Question: {question}\n\nTranscript of the spoken answer:\n{transcript}"
     messages = [{"role": "system", "content": SYSTEM_PROMPT.format(domain=domain or "software", difficulty=difficulty or "medium")},
                 {"role": "user", "content": user}]
-    try:
-        result = chat_json(messages, post=post)
-    except requests.RequestException as e:
-        return {"error": f"The grading model at {settings.get('llm_base_url')} didn't answer ({type(e).__name__}). Is llama-swap running?"}
-    except ValueError:
-        return {"error": "The grading model returned something that wasn't the expected JSON."}
-    return with_final_score(result)
+    for _ in range(2):  # gpt-oss-20b now and then leaves scores out (1 in 42 answers); a second try fixes it
+        try:
+            return with_final_score(chat_json(messages, post=post))
+        except requests.RequestException as e:
+            return {"error": f"The grading model at {settings.get('llm_base_url')} didn't answer ({type(e).__name__}). Is llama-swap running?"}
+        except (ValueError, AttributeError):  # not JSON, not an object, or a score missing
+            pass
+    return {"error": "The grading model's reply wasn't a complete grade."}
 
 
 FOLLOW_UP_GRADE_PROMPT = """You are a senior {domain} interviewer. You asked the candidate a follow-up question

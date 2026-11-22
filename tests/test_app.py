@@ -44,6 +44,13 @@ def test_grade_handles_bad_json_and_empty_transcripts():
     assert "error" in answer_evaluator.grade("q", "   ")
 
 
+def test_a_grade_with_scores_missing_is_retried_and_never_reads_as_zero():
+    partial = json.dumps({"candidate_summary": "You said you'd use Redis.", "feedback": "..."})
+    replies = iter([partial, json.dumps(GRADE)])
+    assert answer_evaluator.grade("q", "some answer", post=lambda *a, **k: FakeResponse(next(replies)))["final_score"] == 7.0
+    assert "error" in answer_evaluator.grade("q", "some answer", post=lambda *a, **k: FakeResponse(partial))
+
+
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     monkeypatch.setattr(app_module, "SESSIONS_DIR", str(tmp_path))

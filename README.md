@@ -33,6 +33,22 @@ Clarity (how easy the answer is to follow when heard) is scored too, but reporte
 
 It never infers emotion or "confidence" from your face. Facial expressions don't reliably map to inner states (Barrett et al., 2019), and the EU AI Act bans emotion recognition in workplaces and education, including recruitment. DeepHire measures behaviour you can see and change instead. The full reasoning is in [docs/redesign.md](docs/redesign.md).
 
+## How far to trust the content score
+
+`scripts/grader_agreement.py` runs the grader on a fixed set of 42 answers in [eval/grader_agreement/](eval/grader_agreement/). Five are transcripts from saved sessions. The other 37 were written for the check, each labelled by how it was written: good, partial, weak, off-topic (an answer to a different question) or empty. Measured with gpt-oss-20b on 22 Nov 2026:
+
+- **Agreement with a human grader: not measured yet.** The hand grades haven't been done. When they are, the script reports exact and ±1 agreement on the 10-point scale, the mean difference and a confusion table, and the numbers go here.
+- **Off-topic and empty answers:** none of the 17 scored above 3; all scored 0. That includes a binary-search-tree answer to a trie question and an answer that asks the grader for full marks. In earlier testing an off-topic answer scored 9/10. That hasn't happened since the prompt has the model summarise the answer and decide whether it's on topic before scoring, and code caps an off-topic answer at 2.
+- **Mean score by label:** good 8.3, partial 6.9, weak 2.0, off-topic 0, empty 0.
+- **Repeatability:** graded twice, 27 of 41 answers got the same score and 39 were within 1 point. The largest gap was 1.1.
+- **What went wrong:** in the first run, one good answer came back with its scores missing and was counted as 0/10. A missing score is now retried once, then reported as an error, never as a zero. And a partial answer with an off-by-one bug (its "page one" returns results 11–20) scored 9.3, so the grader can miss small mistakes.
+
+```bash
+python scripts/grader_agreement.py            # grade new answers with the local model, then report
+python scripts/grader_agreement.py --by-hand  # grade them yourself, one at a time, without labels or model scores
+python scripts/grader_agreement.py --report   # rebuild the report (results.md) from saved grades
+```
+
 ## The Windows app
 
 DeepHire runs as a desktop app: a native window (Edge WebView2, built into Windows 11) with the engine running inside the same process, so there is no browser, no address bar and nothing served beyond this computer. It has three places in a side rail: **Practice** (start a session), **History** (every past session with its track sheet, deletable) and **Settings** (voice, defaults for new sessions, models). The interview room takes the whole window; Space answers or finishes, S skips, H hides the levels.
@@ -62,7 +78,7 @@ python deephire/app.py          # http://127.0.0.1:5000
 
 `fetch_vendor.py` downloads the Whisper `base` model (about 140 MB) into your Hugging Face cache; the app then loads it from there with no network call. `WHISPER_MODEL=small` is more accurate and slower; `WHISPER_THREADS` (default 4) caps its CPU threads.
 
-Tests: `pytest` (the models are stubbed). `python scripts/grade_check.py` checks the grading and follow-up prompts against the real local model.
+Tests: `pytest` (the models are stubbed). `python scripts/grade_check.py` checks the grading and follow-up prompts against the real local model, and `scripts/grader_agreement.py` measures the grader against hand grades.
 
 ## Privacy
 
@@ -72,7 +88,7 @@ Tests: `pytest` (the models are stubbed). `python scripts/grade_check.py` checks
 
 ## Known limits
 
-- Content scores come from one local-model call per answer and haven't been checked against human graders. A 20B local model grades less reliably than a large hosted one.
+- Content scores come from one local-model call per answer, and their agreement with a human grader hasn't been measured yet ([how far to trust them](#how-far-to-trust-the-content-score)). A 20B local model grades less reliably than a large hosted one.
 - Grading takes about 30 s per answer on an RTX 3050 when the GPU is free, and minutes when it's busy. The report fills in as answers finish.
 - Speech recognition tidies away some "um"s and "uh"s, so filler counts are a lower bound.
 - Facing the camera is estimated from head and eye direction. Glasses, low light and a camera far to one side reduce accuracy.
@@ -92,6 +108,7 @@ deephire/
   templates/           setup, room, report (+ the landing page and blog)
   static/js/           room logic, face tracking, recording, report
 scripts/fetch_vendor.py  downloads the offline browser files
+scripts/grader_agreement.py  grader vs. human agreement on eval/grader_agreement/
 tests/                 delivery metrics, grading, API flow
 docs/redesign.md       design doc: Chakra research, signal choices, milestones
 ans_eval/              older standalone evaluator for exported chat sessions (uses Groq)
@@ -99,4 +116,4 @@ ans_eval/              older standalone evaluator for exported chat sessions (us
 
 ## Status
 
-M1 and M2 of the redesign are built: the video room, spoken questions, local transcription and grading, the track-sheet report, adaptive follow-up questions, mock and practice modes, and the opt-in camera-setup check. Next is M3: a code pad for coding questions and the landing page. The landing page (`/about`) still describes the old text-chat version and is rebuilt in M3; its placeholder testimonials have been removed.
+M1 and M2 of the redesign are built: the video room, spoken questions, local transcription and grading, the track-sheet report, adaptive follow-up questions, mock and practice modes, and the opt-in camera-setup check. Next is M3: a code pad for coding questions and the landing page. The landing page (`/about`) still describes the old text-chat version and is rebuilt in M3; its placeholder testimonials have been removed. From M4, the grader-agreement check is built and waiting for its hand grades.
