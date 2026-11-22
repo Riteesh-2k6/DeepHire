@@ -218,7 +218,7 @@ GET /api/report/<id> ◄── report page polls until grading is done
 
 **M3: coding and the front door.**
 - A code pad for coding questions.
-- Landing page redesign, removing the placeholder testimonials or replacing them with real ones.
+- Landing page redesign. The placeholder testimonials were removed on 22 Nov 2026, with a short "What it measures" block in their place.
 - Session history on the device, so you can see whether you're improving.
 
 **M4: trust.**

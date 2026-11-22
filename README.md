@@ -99,4 +99,4 @@ ans_eval/              older standalone evaluator for exported chat sessions (us
 
 ## Status
 
-M1 and M2 of the redesign are built: the video room, spoken questions, local transcription and grading, the track-sheet report, adaptive follow-up questions, mock and practice modes, and the opt-in camera-setup check. Next is M3: a code pad for coding questions and the landing page. The landing page still describes the old text-chat version, and its testimonials are placeholders, not real users; it's rebuilt in M3.
+M1 and M2 of the redesign are built: the video room, spoken questions, local transcription and grading, the track-sheet report, adaptive follow-up questions, mock and practice modes, and the opt-in camera-setup check. Next is M3: a code pad for coding questions and the landing page. The landing page (`/about`) still describes the old text-chat version and is rebuilt in M3; its placeholder testimonials have been removed.

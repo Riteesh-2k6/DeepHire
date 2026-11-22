@@ -43,7 +43,7 @@ It runs entirely on the student's own machine: questions are spoken by the brows
 ## Evidence on Hand
 
 - Real: the question bank, the rubric, and measured local performance (Whisper base transcribes 13.4 s of speech in 1.3 s on CPU).
-- Absent: no real users, testimonials, outcomes or accuracy studies. The landing page's testimonials are placeholders and must not be presented as real. LLM scores have not been validated against human graders and the product says so.
+- Absent: no real users, testimonials, outcomes or accuracy studies. The landing page's placeholder testimonials were removed on 22 Nov 2026; don't add any until there are real users. LLM scores have not been validated against human graders and the product says so.
 
 ## Product Principles
 
